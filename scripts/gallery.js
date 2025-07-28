@@ -86,8 +86,84 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Load all images from gallery folder
+    // Load all images from gallery folder using images.json
     async function loadAllGalleryImages() {
+        const galleryPath = 'images/gallery/';
+        
+        console.log('Gallery: Loading image list...');
+        
+        try {
+            // Try to load the images.json file first
+            const imageList = await loadImageList(galleryPath + 'images.json');
+            if (imageList && imageList.length > 0) {
+                await loadImagesFromList(imageList, galleryPath);
+                return;
+            }
+        } catch (error) {
+            console.log('Gallery: No images.json found, falling back to pattern matching...');
+        }
+        
+        // Fallback to pattern matching if no images.json
+        await loadImagesUsingPatterns();
+    }
+    
+    // Load the images.json file
+    async function loadImageList(jsonPath) {
+        return fetch(jsonPath)
+            .then(response => {
+                if (!response.ok) throw new Error('No images.json');
+                return response.json();
+            })
+            .catch(() => null);
+    }
+    
+    // Load images from the JSON list
+    async function loadImagesFromList(imageList, galleryPath) {
+        console.log(`Gallery: Loading ${imageList.length} images from list...`);
+        
+        const loadedImages = [];
+        let currentSkeletonIndex = 0;
+        
+        for (const imageName of imageList) {
+            const imagePath = galleryPath + imageName;
+            const imageData = await checkAndLoadImage(imagePath, imageName);
+            
+            if (imageData) {
+                console.log(`Gallery: Found ${imageName}`);
+                
+                // Add more skeleton boxes if needed
+                if (currentSkeletonIndex >= document.querySelectorAll('.gallery-skeleton').length) {
+                    addSkeletonBox(currentSkeletonIndex);
+                }
+                
+                // Replace skeleton immediately
+                await replaceSkeletonWithImage(currentSkeletonIndex, imageData);
+                loadedImages.push(imageData);
+                currentSkeletonIndex++;
+                
+                // Small delay for visual effect
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        }
+        
+        if (loadedImages.length === 0) {
+            showNoImagesMessage();
+            return;
+        }
+        
+        // Remove any unused skeleton boxes
+        removeExtraSkeletons(loadedImages.length);
+        
+        console.log(`Gallery: Loaded ${loadedImages.length} images total`);
+        
+        // Create infinite loop and initialize after a brief delay
+        setTimeout(() => {
+            createInfiniteLoopAndInitialize(loadedImages);
+        }, 300);
+    }
+    
+    // Fallback: Load images using pattern matching (original method)
+    async function loadImagesUsingPatterns() {
         const galleryPath = 'images/gallery/';
         const commonImageNames = [
             // Try common numbered patterns first (faster)
