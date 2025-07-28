@@ -13,6 +13,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
+    - name: Prepare deployment directory
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          # Ensure the deployment directory exists
+          mkdir -p /home/deploy/static-sites/jonieshorsecare.nl
+          
     - name: Deploy via rsync
       uses: burnett01/rsync-deployments@6.0.0
       with:
