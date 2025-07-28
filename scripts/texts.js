@@ -114,12 +114,9 @@ const texts = {
         },
         email: {
             label: "Email:",
-            value: "contact@jonieshorsecare.nl"
+            value: "jonieshorsecare@hotmail.com"
         },
-        address: {
-            label: "Adress:",
-            value: "straatnaam 123, 1234 AB Plaatsnaam"
-        }
+        
     },
     
     footer: {
