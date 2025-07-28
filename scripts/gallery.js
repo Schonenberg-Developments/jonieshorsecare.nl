@@ -124,12 +124,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const loadedImages = [];
         let currentSkeletonIndex = 0;
         
-        for (const imageName of imageList) {
+        for (let i = 0; i < imageList.length; i++) {
+            const imageName = imageList[i];
             const imagePath = galleryPath + imageName;
+            
+            console.log(`Gallery: Checking image ${i + 1}/${imageList.length}: ${imageName}`);
+            
             const imageData = await checkAndLoadImage(imagePath, imageName);
             
             if (imageData) {
-                console.log(`Gallery: Found ${imageName}`);
+                console.log(`Gallery: Successfully loaded ${imageName}`);
                 
                 // Add more skeleton boxes if needed
                 if (currentSkeletonIndex >= document.querySelectorAll('.gallery-skeleton').length) {
@@ -137,14 +141,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Replace skeleton immediately
+                console.log(`Gallery: Replacing skeleton ${currentSkeletonIndex} with ${imageName}`);
                 await replaceSkeletonWithImage(currentSkeletonIndex, imageData);
                 loadedImages.push(imageData);
                 currentSkeletonIndex++;
                 
                 // Small delay for visual effect
                 await new Promise(resolve => setTimeout(resolve, 100));
+            } else {
+                console.log(`Gallery: Failed to load ${imageName}`);
             }
         }
+        
+        console.log(`Gallery: Finished loading, found ${loadedImages.length} valid images`);
         
         if (loadedImages.length === 0) {
             showNoImagesMessage();
@@ -154,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Remove any unused skeleton boxes
         removeExtraSkeletons(loadedImages.length);
         
-        console.log(`Gallery: Loaded ${loadedImages.length} images total`);
+        console.log(`Gallery: Loaded ${loadedImages.length} images total, initializing infinite loop...`);
         
         // Create infinite loop and initialize after a brief delay
         setTimeout(() => {
