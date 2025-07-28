@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Start loading images progressively after a short delay
     setTimeout(() => {
-        loadGalleryImagesProgressively();
+        loadAllGalleryImages();
     }, 100);
     
     // Initialize gallery with skeleton loading boxes
@@ -69,8 +69,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (galleryPrev) galleryPrev.style.display = 'block';
         if (galleryNext) galleryNext.style.display = 'block';
         
-        // Create initial skeleton boxes (we'll determine actual count later)
-        createSkeletonBoxes(8); // Start with 8 skeleton boxes
+        // Create initial skeleton boxes (we'll adjust count as needed)
+        createSkeletonBoxes(6); // Start with 6 skeleton boxes
     }
     
     // Create skeleton loading boxes
@@ -86,47 +86,52 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Find and load images immediately as they're found
-    async function loadGalleryImagesProgressively() {
-        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    // Load all images from gallery folder
+    async function loadAllGalleryImages() {
         const galleryPath = 'images/gallery/';
-        const maxImages = 50;
+        const commonImageNames = [
+            // Try common numbered patterns first (faster)
+            '1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg', '7.jpg', '8.jpg', '9.jpg', '10.jpg',
+            '11.jpg', '12.jpg', '13.jpg', '14.jpg', '15.jpg', '16.jpg', '17.jpg', '18.jpg', '19.jpg', '20.jpg',
+            // Try other extensions for first few numbers
+            '1.jpeg', '1.png', '1.gif', '1.webp',
+            '2.jpeg', '2.png', '2.gif', '2.webp',
+            '3.jpeg', '3.png', '3.gif', '3.webp',
+            '4.jpeg', '4.png', '4.gif', '4.webp',
+            '5.jpeg', '5.png', '5.gif', '5.webp',
+            // Try some common naming patterns
+            'horse1.jpg', 'horse2.jpg', 'horse3.jpg', 'horse4.jpg', 'horse5.jpg',
+            'stable1.jpg', 'stable2.jpg', 'stable3.jpg', 'stable4.jpg', 'stable5.jpg',
+            'gallery1.jpg', 'gallery2.jpg', 'gallery3.jpg', 'gallery4.jpg', 'gallery5.jpg',
+            'img1.jpg', 'img2.jpg', 'img3.jpg', 'img4.jpg', 'img5.jpg',
+            'photo1.jpg', 'photo2.jpg', 'photo3.jpg', 'photo4.jpg', 'photo5.jpg'
+        ];
         
-        console.log('Gallery: Starting progressive image loading...');
+        console.log('Gallery: Scanning for images...');
         
         const loadedImages = [];
         let currentSkeletonIndex = 0;
-        let consecutiveFails = 0;
-        const maxConsecutiveFails = 3; // Stop after 3 consecutive missing numbers
         
-        // Load images progressively as we find them
-        for (let i = 1; i <= maxImages && consecutiveFails < maxConsecutiveFails; i++) {
-            let imageFound = false;
+        // Try to load each possible image
+        for (const imageName of commonImageNames) {
+            const imagePath = galleryPath + imageName;
+            const imageData = await checkAndLoadImage(imagePath, imageName);
             
-            // Try each extension for this number
-            for (const ext of imageExtensions) {
-                const imagePath = `${galleryPath}${i}.${ext}`;
-                const imageData = await checkAndLoadImage(imagePath, i);
+            if (imageData) {
+                console.log(`Gallery: Found ${imageName}`);
                 
-                if (imageData) {
-                    imageFound = true;
-                    consecutiveFails = 0; // Reset fail counter
-                    
-                    console.log(`Gallery: Loading image ${i} (${loadedImages.length + 1} total)`);
-                    
-                    // Replace skeleton immediately
-                    await replaceSkeletonWithImage(currentSkeletonIndex, imageData);
-                    loadedImages.push(imageData);
-                    currentSkeletonIndex++;
-                    
-                    // Small delay for visual effect
-                    await new Promise(resolve => setTimeout(resolve, 150));
-                    break; // Found image with this number, try next number
+                // Add more skeleton boxes if needed
+                if (currentSkeletonIndex >= document.querySelectorAll('.gallery-skeleton').length) {
+                    addSkeletonBox(currentSkeletonIndex);
                 }
-            }
-            
-            if (!imageFound) {
-                consecutiveFails++;
+                
+                // Replace skeleton immediately
+                await replaceSkeletonWithImage(currentSkeletonIndex, imageData);
+                loadedImages.push(imageData);
+                currentSkeletonIndex++;
+                
+                // Small delay for visual effect
+                await new Promise(resolve => setTimeout(resolve, 100));
             }
         }
         
@@ -147,17 +152,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Check if image exists and return data if found
-    async function checkAndLoadImage(imagePath, imageNumber) {
+    async function checkAndLoadImage(imagePath, imageName) {
         return new Promise((resolve) => {
             const img = new Image();
             img.onload = () => resolve({ 
                 src: imagePath, 
-                number: imageNumber,
-                alt: `${texts.gallery.imageAlt} ${imageNumber}`
+                name: imageName,
+                alt: `${texts.gallery.imageAlt} - ${imageName}`
             });
             img.onerror = () => resolve(null);
             img.src = imagePath;
         });
+    }
+    
+    // Add a single skeleton box
+    function addSkeletonBox(index) {
+        const gallerySlider = document.getElementById('gallerySlider');
+        const skeletonBox = document.createElement('div');
+        skeletonBox.className = 'gallery-skeleton';
+        skeletonBox.setAttribute('data-skeleton-index', index);
+        gallerySlider.appendChild(skeletonBox);
     }
     
     // Replace a skeleton box with actual image immediately
@@ -191,19 +205,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return true;
     }
     
-    // Remove extra skeleton boxes that weren't used
-    function removeExtraSkeletons(usedCount) {
-        const gallerySlider = document.getElementById('gallerySlider');
-        const allSkeletons = gallerySlider.querySelectorAll('.gallery-skeleton');
-        
-        // Remove skeletons beyond the used count
-        for (let i = usedCount; i < allSkeletons.length; i++) {
-            if (allSkeletons[i]) {
-                allSkeletons[i].remove();
-            }
-        }
-    }
-    
     // Create a gallery image element
     function createGalleryImage(imageData) {
         return new Promise((resolve) => {
@@ -216,6 +217,19 @@ document.addEventListener('DOMContentLoaded', function() {
             img.onload = () => resolve(img);
             img.onerror = () => resolve(null);
         });
+    }
+    
+    // Remove extra skeleton boxes that weren't used
+    function removeExtraSkeletons(usedCount) {
+        const gallerySlider = document.getElementById('gallerySlider');
+        const allSkeletons = gallerySlider.querySelectorAll('.gallery-skeleton');
+        
+        // Remove skeletons beyond the used count
+        for (let i = usedCount; i < allSkeletons.length; i++) {
+            if (allSkeletons[i]) {
+                allSkeletons[i].remove();
+            }
+        }
     }
     
     // Create infinite loop copies and initialize gallery functionality
