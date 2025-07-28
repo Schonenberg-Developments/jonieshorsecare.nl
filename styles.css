@@ -433,6 +433,10 @@ footer {
         padding: 80px 20px;
     }
     
+    .services {
+        background: #f5f2ed;
+    }
+    
     .hero-text h1 {
         font-size: 1.8rem;
     }

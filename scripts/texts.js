@@ -2,7 +2,8 @@ const texts = {
     hero: {
         title: "Paarden tot bloei laten komen",
         subtitle: "Technische expertise combineren met een natuurgerichte benadering van paardentraining",
-        logoAlt: "Paarden tot bloei laten komen Logo"
+        logoAlt: "Paarden tot bloei laten komen Logo",
+        siteTitle: "Jonie's horse care"
     },
     
     services: {
@@ -102,10 +103,12 @@ function loadTexts() {
     const heroTitle = document.querySelector('.hero-text h1');
     const heroSubtitle = document.querySelector('.hero-text p');
     const heroLogo = document.querySelector('.hero-logo');
+    const heroSiteTitle = document.querySelector('.hero-subtitle span');
     
     if (heroTitle) heroTitle.textContent = texts.hero.title;
     if (heroSubtitle) heroSubtitle.textContent = texts.hero.subtitle;
     if (heroLogo) heroLogo.alt = texts.hero.logoAlt;
+    if (heroSiteTitle) heroSiteTitle.textContent = texts.hero.siteTitle;
     
     // Update services section
     const servicesTitle = document.querySelector('.services h2');

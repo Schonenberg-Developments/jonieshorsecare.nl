@@ -1,37 +1,86 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Load texts first
-    loadTexts();
+    // Initialize gallery placeholder immediately
+    initializeGalleryPlaceholder();
     
-    const expandButtons = document.querySelectorAll('.expand-btn');
+    // Load gallery images in the background after page load
+    setTimeout(() => {
+        loadGalleryImages();
+    }, 500); // Small delay to ensure page is fully rendered
     
-    expandButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const targetId = this.getAttribute('data-target');
-            const targetElement = document.getElementById(targetId);
-            const isActive = targetElement.classList.contains('active');
-            
-            // Close all other expanded sections
-            document.querySelectorAll('.service-details').forEach(detail => {
-                detail.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.expand-btn').forEach(btn => {
-                btn.classList.remove('active');
-                btn.textContent = texts.services.boarding.buttonText; // Use text from texts.js
-            });
-            
-            // Toggle current section
-            if (!isActive) {
-                targetElement.classList.add('active');
-                this.classList.add('active');
-                this.textContent = texts.services.boarding.buttonTextLess; // Use text from texts.js
-            } else {
-                targetElement.classList.remove('active');
-                this.classList.remove('active');
-                this.textContent = texts.services.boarding.buttonText; // Use text from texts.js
+    // Initialize gallery placeholder to show loading state
+    function initializeGalleryPlaceholder() {
+        const gallerySlider = document.getElementById('gallerySlider');
+        const galleryContainer = document.querySelector('.gallery-container');
+        
+        if (!gallerySlider) return;
+        
+        // Show loading placeholder
+        gallerySlider.innerHTML = `
+            <div class="gallery-loading">
+                <div class="loading-spinner"></div>
+                <p>Loading gallery images...</p>
+            </div>
+        `;
+        
+        // Add loading styles
+        const loadingStyle = document.createElement('style');
+        loadingStyle.textContent = `
+            .gallery-loading {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 200px;
+                width: 100%;
+                color: #8b4513;
+                font-family: 'Georgia', serif;
             }
+            
+            .loading-spinner {
+                width: 40px;
+                height: 40px;
+                border: 4px solid #e8ddd4;
+                border-top: 4px solid #8b4513;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin-bottom: 15px;
+            }
+            
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(loadingStyle);
+        
+        // Hide navigation buttons during loading
+        const galleryPrev = document.getElementById('galleryPrev');
+        const galleryNext = document.getElementById('galleryNext');
+        if (galleryPrev) galleryPrev.style.display = 'none';
+        if (galleryNext) galleryNext.style.display = 'none';
+    }
+    
+    // Optimized image loading with progress tracking
+    function createImagePromise(imagePath, imageNumber) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = function() {
+                resolve({
+                    src: imagePath,
+                    alt: `${texts.gallery.imageAlt} ${imageNumber}`,
+                    number: imageNumber,
+                    loaded: true
+                });
+            };
+            img.onerror = function() {
+                resolve({ loaded: false });
+            };
+            
+            // Set loading attribute for better performance
+            img.loading = 'lazy';
+            img.src = imagePath;
         });
-    });
+    }
     
     // Load gallery images dynamically
     function loadGalleryImages() {
@@ -40,42 +89,46 @@ document.addEventListener('DOMContentLoaded', function() {
         const galleryPath = 'images/gallery/';
         
         let loadedImages = [];
-        let loadPromises = [];
         
-        // Try to load numbered images from 1 to 50
+        // Try to load numbered images from 1 to 50 with optimized loading
+        const imagePromises = [];
+        
         for (let i = 1; i <= 50; i++) {
             imageExtensions.forEach(ext => {
                 const imagePath = `${galleryPath}${i}.${ext}`;
-                
-                const promise = new Promise((resolve) => {
-                    const img = new Image();
-                    img.onload = function() {
-                        loadedImages.push({
-                            src: imagePath,
-                            alt: `${texts.gallery.imageAlt} ${i}`, // Use text from texts.js
-                            number: i
-                        });
-                        resolve();
-                    };
-                    img.onerror = function() {
-                        resolve(); // Continue even if image doesn't exist
-                    };
-                    img.src = imagePath;
-                });
-                
-                loadPromises.push(promise);
+                imagePromises.push(createImagePromise(imagePath, i));
             });
         }
         
-        // Wait for all image checks to complete
-        Promise.all(loadPromises).then(() => {
+        // Wait for all image checks to complete with progress updates
+        Promise.all(imagePromises).then((results) => {
+            // Filter successful loads and add to loadedImages
+            results.forEach(result => {
+                if (result.loaded) {
+                    loadedImages.push(result);
+                }
+            });
+            
             // Sort images by number
             loadedImages.sort((a, b) => a.number - b.number);
             
+            console.log(`Gallery: Loaded ${loadedImages.length} images`);
+            
             if (loadedImages.length === 0) {
-                document.querySelector('.gallery').style.display = 'none';
+                const gallerySlider = document.getElementById('gallerySlider');
+                gallerySlider.innerHTML = `
+                    <div class="gallery-loading">
+                        <p>No gallery images found</p>
+                    </div>
+                `;
                 return;
             }
+            
+            // Show navigation buttons
+            const galleryPrev = document.getElementById('galleryPrev');
+            const galleryNext = document.getElementById('galleryNext');
+            if (galleryPrev) galleryPrev.style.display = 'block';
+            if (galleryNext) galleryNext.style.display = 'block';
             
             // Create multiple copies of all images for infinite loop effect
             const originalImages = [...loadedImages];
@@ -92,7 +145,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
             
-            // Create gallery items
+            // Clear loading placeholder
+            gallerySlider.innerHTML = '';
+            
+            // Create gallery items with progressive loading
             loadedImages.forEach((imageData, index) => {
                 const galleryItem = document.createElement('div');
                 galleryItem.className = 'gallery-item';
@@ -101,6 +157,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 img.src = imageData.src;
                 img.alt = imageData.alt;
                 img.className = 'gallery-image';
+                img.loading = 'lazy'; // Enable native lazy loading
+                
+                // Add fade-in effect when image loads
+                img.style.opacity = '0';
+                img.style.transition = 'opacity 0.3s ease';
+                
+                img.onload = function() {
+                    this.style.opacity = '1';
+                };
                 
                 galleryItem.appendChild(img);
                 gallerySlider.appendChild(galleryItem);
@@ -266,94 +331,4 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initialize gallery
         updateGallery();
     }
-    
-    // Load gallery images when page loads
-    loadGalleryImages();
-    
-    // Add smooth scrolling for any anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href').substring(1);
-            const targetElement = document.getElementById(targetId);
-            
-            if (targetElement) {
-                targetElement.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-    
-    // Parallax effect for hero image
-    const hero = document.querySelector('.hero');
-    const isMobile = window.innerWidth <= 768;
-    
-    function updateParallax() {
-        if (hero) {
-            const scrolled = window.pageYOffset;
-            const heroHeight = hero.offsetHeight;
-            
-            // Different speeds for mobile vs desktop
-            const speed = isMobile ? 0.8 : 0.5; // Faster on mobile (0.8 vs 0.5)
-            const yPos = scrolled * speed;
-            
-            // Apply transform to make image move faster than scroll
-            // On mobile, image disappears faster due to higher speed
-            hero.style.transform = `translateY(${yPos}px)`;
-            
-            // Optional: Add fade effect as user scrolls
-            const opacity = Math.max(0, 1 - (scrolled / heroHeight) * 1.5);
-            hero.style.opacity = opacity;
-        }
-    }
-    
-    // Throttled scroll event for better performance
-    let ticking = false;
-    function requestTick() {
-        if (!ticking) {
-            requestAnimationFrame(updateParallax);
-            ticking = true;
-        }
-    }
-    
-    function handleScroll() {
-        ticking = false;
-        requestTick();
-    }
-    
-    window.addEventListener('scroll', handleScroll);
-    
-    // Update mobile detection on resize
-    window.addEventListener('resize', function() {
-        const wasMobile = isMobile;
-        const nowMobile = window.innerWidth <= 768;
-        if (wasMobile !== nowMobile) {
-            location.reload(); // Simple way to handle resize
-        }
-    });
-    
-    // Add animation on scroll (optional enhancement)
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-    
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
-    
-    // Initially hide service cards for animation
-    document.querySelectorAll('.service-card').forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        observer.observe(card);
-    });
 });
