@@ -21,8 +21,11 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.PORT }}
         script: |
-          # Ensure the deployment directory exists
-          mkdir -p /home/deploy/static-sites/jonieshorsecare.nl
+          # Ensure the deployment directory structure exists
+          mkdir -p /home/deploy/static-sites/jonieshorsecare.nl/images
+          chmod -R 755 /home/deploy/static-sites/jonieshorsecare.nl
+          echo "Directory created and permissions set"
+          ls -la /home/deploy/static-sites/jonieshorsecare.nl/
           
     - name: Deploy via rsync
       uses: burnett01/rsync-deployments@6.0.0
