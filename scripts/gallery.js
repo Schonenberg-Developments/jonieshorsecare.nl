@@ -261,14 +261,26 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Replace a skeleton box with actual image immediately
     async function replaceSkeletonWithImage(skeletonIndex, imageData) {
+        console.log(`Gallery: Starting replacement for skeleton ${skeletonIndex}`);
+        
         const gallerySlider = document.getElementById('gallerySlider');
         const skeleton = gallerySlider.querySelector(`[data-skeleton-index="${skeletonIndex}"]`);
         
-        if (!skeleton) return false;
+        if (!skeleton) {
+            console.log(`Gallery: No skeleton found with index ${skeletonIndex}`);
+            return false;
+        }
+        
+        console.log(`Gallery: Found skeleton ${skeletonIndex}, creating image...`);
         
         // Create the actual image element
         const img = await createGalleryImage(imageData);
-        if (!img) return false;
+        if (!img) {
+            console.log(`Gallery: Failed to create image for ${imageData.name}`);
+            return false;
+        }
+        
+        console.log(`Gallery: Image created successfully, replacing skeleton...`);
         
         // Create gallery item
         const galleryItem = document.createElement('div');
@@ -282,9 +294,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Replace skeleton with image
         skeleton.parentNode.replaceChild(galleryItem, skeleton);
         
+        console.log(`Gallery: Skeleton replaced, starting fade-in...`);
+        
         // Fade in the image
         setTimeout(() => {
             galleryItem.style.opacity = '1';
+            console.log(`Gallery: Fade-in complete for skeleton ${skeletonIndex}`);
         }, 50);
         
         return true;
@@ -292,6 +307,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Create a gallery image element
     function createGalleryImage(imageData) {
+        console.log(`Gallery: Creating image element for ${imageData.name}`);
+        
         return new Promise((resolve) => {
             const img = document.createElement('img');
             img.src = imageData.src;
@@ -299,8 +316,14 @@ document.addEventListener('DOMContentLoaded', function() {
             img.className = 'gallery-image';
             img.loading = 'lazy';
             
-            img.onload = () => resolve(img);
-            img.onerror = () => resolve(null);
+            img.onload = () => {
+                console.log(`Gallery: Image element loaded successfully for ${imageData.name}`);
+                resolve(img);
+            };
+            img.onerror = () => {
+                console.log(`Gallery: Image element failed to load for ${imageData.name}`);
+                resolve(null);
+            };
         });
     }
     
