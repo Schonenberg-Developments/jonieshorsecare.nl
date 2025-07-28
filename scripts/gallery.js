@@ -86,140 +86,122 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Find actual number of images and load them progressively
+    // Find and load images immediately as they're found
     async function loadGalleryImagesProgressively() {
         const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
         const galleryPath = 'images/gallery/';
-        const maxImages = 50; // Maximum to check
+        const maxImages = 50;
         
-        console.log('Gallery: Starting image detection...');
+        console.log('Gallery: Starting progressive image loading...');
         
-        // First, detect how many images actually exist
-        const availableImages = await detectAvailableImages(galleryPath, imageExtensions, maxImages);
+        const loadedImages = [];
+        let currentSkeletonIndex = 0;
+        let consecutiveFails = 0;
+        const maxConsecutiveFails = 3; // Stop after 3 consecutive missing numbers
         
-        if (availableImages.length === 0) {
+        // Load images progressively as we find them
+        for (let i = 1; i <= maxImages && consecutiveFails < maxConsecutiveFails; i++) {
+            let imageFound = false;
+            
+            // Try each extension for this number
+            for (const ext of imageExtensions) {
+                const imagePath = `${galleryPath}${i}.${ext}`;
+                const imageData = await checkAndLoadImage(imagePath, i);
+                
+                if (imageData) {
+                    imageFound = true;
+                    consecutiveFails = 0; // Reset fail counter
+                    
+                    console.log(`Gallery: Loading image ${i} (${loadedImages.length + 1} total)`);
+                    
+                    // Replace skeleton immediately
+                    await replaceSkeletonWithImage(currentSkeletonIndex, imageData);
+                    loadedImages.push(imageData);
+                    currentSkeletonIndex++;
+                    
+                    // Small delay for visual effect
+                    await new Promise(resolve => setTimeout(resolve, 150));
+                    break; // Found image with this number, try next number
+                }
+            }
+            
+            if (!imageFound) {
+                consecutiveFails++;
+            }
+        }
+        
+        if (loadedImages.length === 0) {
             showNoImagesMessage();
             return;
         }
         
-        console.log(`Gallery: Found ${availableImages.length} images, loading progressively...`);
+        // Remove any unused skeleton boxes
+        removeExtraSkeletons(loadedImages.length);
         
-        // Update skeleton boxes to match actual image count
-        updateSkeletonCount(availableImages.length);
+        console.log(`Gallery: Loaded ${loadedImages.length} images total`);
         
-        // Load images one by one with a small delay between each
-        loadImagesWithDelay(availableImages);
+        // Create infinite loop and initialize after a brief delay
+        setTimeout(() => {
+            createInfiniteLoopAndInitialize(loadedImages);
+        }, 300);
     }
     
-    // Detect which images actually exist
-    async function detectAvailableImages(galleryPath, extensions, maxCount) {
-        const availableImages = [];
-        const checkPromises = [];
-        
-        // Check images efficiently by trying common extensions first
-        for (let i = 1; i <= maxCount; i++) {
-            for (const ext of extensions) {
-                const imagePath = `${galleryPath}${i}.${ext}`;
-                checkPromises.push(checkImageExists(imagePath, i));
-            }
-        }
-        
-        const results = await Promise.all(checkPromises);
-        
-        // Filter successful results and remove duplicates
-        const imageMap = new Map();
-        results.forEach(result => {
-            if (result.exists && !imageMap.has(result.number)) {
-                imageMap.set(result.number, result);
-            }
-        });
-        
-        // Convert to array and sort
-        return Array.from(imageMap.values()).sort((a, b) => a.number - b.number);
-    }
-    
-    // Check if a single image exists
-    function checkImageExists(imagePath, imageNumber) {
+    // Check if image exists and return data if found
+    async function checkAndLoadImage(imagePath, imageNumber) {
         return new Promise((resolve) => {
             const img = new Image();
             img.onload = () => resolve({ 
-                exists: true, 
                 src: imagePath, 
                 number: imageNumber,
                 alt: `${texts.gallery.imageAlt} ${imageNumber}`
             });
-            img.onerror = () => resolve({ exists: false });
+            img.onerror = () => resolve(null);
             img.src = imagePath;
         });
     }
     
-    // Update skeleton boxes to match actual image count
-    function updateSkeletonCount(actualCount) {
+    // Replace a skeleton box with actual image immediately
+    async function replaceSkeletonWithImage(skeletonIndex, imageData) {
         const gallerySlider = document.getElementById('gallerySlider');
-        const currentSkeletons = gallerySlider.querySelectorAll('.gallery-skeleton').length;
+        const skeleton = gallerySlider.querySelector(`[data-skeleton-index="${skeletonIndex}"]`);
         
-        if (actualCount > currentSkeletons) {
-            // Add more skeleton boxes
-            for (let i = currentSkeletons; i < actualCount; i++) {
-                const skeletonBox = document.createElement('div');
-                skeletonBox.className = 'gallery-skeleton';
-                skeletonBox.setAttribute('data-skeleton-index', i);
-                gallerySlider.appendChild(skeletonBox);
-            }
-        } else if (actualCount < currentSkeletons) {
-            // Remove excess skeleton boxes
-            const skeletons = gallerySlider.querySelectorAll('.gallery-skeleton');
-            for (let i = actualCount; i < currentSkeletons; i++) {
-                if (skeletons[i]) {
-                    skeletons[i].remove();
-                }
-            }
-        }
+        if (!skeleton) return false;
+        
+        // Create the actual image element
+        const img = await createGalleryImage(imageData);
+        if (!img) return false;
+        
+        // Create gallery item
+        const galleryItem = document.createElement('div');
+        galleryItem.className = 'gallery-item';
+        galleryItem.appendChild(img);
+        
+        // Smooth transition
+        galleryItem.style.opacity = '0';
+        galleryItem.style.transition = 'opacity 0.3s ease';
+        
+        // Replace skeleton with image
+        skeleton.parentNode.replaceChild(galleryItem, skeleton);
+        
+        // Fade in the image
+        setTimeout(() => {
+            galleryItem.style.opacity = '1';
+        }, 50);
+        
+        return true;
     }
     
-    // Load images with progressive delay
-    async function loadImagesWithDelay(availableImages) {
+    // Remove extra skeleton boxes that weren't used
+    function removeExtraSkeletons(usedCount) {
         const gallerySlider = document.getElementById('gallerySlider');
-        const loadedImages = [];
+        const allSkeletons = gallerySlider.querySelectorAll('.gallery-skeleton');
         
-        // Load each image with a 200ms delay
-        for (let i = 0; i < availableImages.length; i++) {
-            const imageData = availableImages[i];
-            
-            // Create the actual image element
-            const img = await createGalleryImage(imageData);
-            
-            // Replace the skeleton with the actual image
-            const skeleton = gallerySlider.querySelector(`[data-skeleton-index="${i}"]`);
-            if (skeleton && img) {
-                const galleryItem = document.createElement('div');
-                galleryItem.className = 'gallery-item';
-                galleryItem.appendChild(img);
-                
-                // Smooth transition
-                galleryItem.style.opacity = '0';
-                skeleton.parentNode.replaceChild(galleryItem, skeleton);
-                
-                // Fade in the image
-                setTimeout(() => {
-                    galleryItem.style.opacity = '1';
-                    galleryItem.style.transition = 'opacity 0.3s ease';
-                }, 50);
-                
-                loadedImages.push(imageData);
-                console.log(`Gallery: Loaded image ${i + 1}/${availableImages.length}`);
-            }
-            
-            // Small delay between images to create progressive loading effect
-            if (i < availableImages.length - 1) {
-                await new Promise(resolve => setTimeout(resolve, 200));
+        // Remove skeletons beyond the used count
+        for (let i = usedCount; i < allSkeletons.length; i++) {
+            if (allSkeletons[i]) {
+                allSkeletons[i].remove();
             }
         }
-        
-        // Once all images are loaded, create infinite loop copies and initialize gallery
-        setTimeout(() => {
-            createInfiniteLoopAndInitialize(loadedImages);
-        }, 500);
     }
     
     // Create a gallery image element
