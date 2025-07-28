@@ -16,13 +16,14 @@ jobs:
     - name: Deploy via rsync
       uses: burnett01/rsync-deployments@6.0.0
       with:
-        switches: -avzr --delete --exclude='.git' --exclude='node_modules' --exclude='.github' --no-links
+        switches: -avzr --delete --exclude='.git' --exclude='node_modules' --exclude='.github'
         path: ./
         remote_path: /home/deploy/static-sites/jonieshorsecare.nl/
         remote_host: ${{ secrets.HOST }}
         remote_user: ${{ secrets.USERNAME }}
         remote_key: ${{ secrets.SSH_KEY }}
         remote_port: ${{ secrets.PORT }}
+        rsh: ssh -o StrictHostKeyChecking=no
         
     - name: Set proper permissions
       uses: appleboy/ssh-action@v1.0.0
@@ -33,6 +34,6 @@ jobs:
         port: ${{ secrets.PORT }}
         script: |
           # Set proper ownership and permissions for web files
-          sudo chown -R www-data:www-data /var/www/jonieshorsecare.nl/
-          sudo find /var/www/jonieshorsecare.nl/ -type d -exec chmod 755 {} \;
-          sudo find /var/www/jonieshorsecare.nl/ -type f -exec chmod 644 {} \;
+          sudo chown -R deploy:www-data /home/deploy/static-sites/jonieshorsecare.nl/
+          sudo find /home/deploy/static-sites/jonieshorsecare.nl/ -type d -exec chmod 755 {} \;
+          sudo find /home/deploy/static-sites/jonieshorsecare.nl/ -type f -exec chmod 644 {} \;
