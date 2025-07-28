@@ -1,0 +1,38 @@
+name: Deploy Static Site
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Deploy via rsync
+      uses: burnett01/rsync-deployments@6.0.0
+      with:
+        switches: -avzr --delete --exclude='.git' --exclude='node_modules' --exclude='.github' --no-links
+        path: ./
+        remote_path: /home/deploy/static-sites/jonieshorsecare.nl/
+        remote_host: ${{ secrets.HOST }}
+        remote_user: ${{ secrets.USERNAME }}
+        remote_key: ${{ secrets.SSH_KEY }}
+        remote_port: ${{ secrets.PORT }}
+        
+    - name: Set proper permissions
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          # Set proper ownership and permissions for web files
+          sudo chown -R www-data:www-data /var/www/jonieshorsecare.nl/
+          sudo find /var/www/jonieshorsecare.nl/ -type d -exec chmod 755 {} \;
+          sudo find /var/www/jonieshorsecare.nl/ -type f -exec chmod 644 {} \;

@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Load texts first
+    loadTexts();
+    
     const expandButtons = document.querySelectorAll('.expand-btn');
     
     expandButtons.forEach(button => {
@@ -14,18 +17,18 @@ document.addEventListener('DOMContentLoaded', function() {
             
             document.querySelectorAll('.expand-btn').forEach(btn => {
                 btn.classList.remove('active');
-                btn.textContent = 'Lees meer';
+                btn.textContent = texts.services.boarding.buttonText; // Use text from texts.js
             });
             
             // Toggle current section
             if (!isActive) {
                 targetElement.classList.add('active');
                 this.classList.add('active');
-                this.textContent = 'Minder tonen';
+                this.textContent = texts.services.boarding.buttonTextLess; // Use text from texts.js
             } else {
                 targetElement.classList.remove('active');
                 this.classList.remove('active');
-                this.textContent = 'Lees meer';
+                this.textContent = texts.services.boarding.buttonText; // Use text from texts.js
             }
         });
     });
@@ -49,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     img.onload = function() {
                         loadedImages.push({
                             src: imagePath,
-                            alt: `Galerij foto ${i}`,
+                            alt: `${texts.gallery.imageAlt} ${i}`, // Use text from texts.js
                             number: i
                         });
                         resolve();
@@ -69,8 +72,28 @@ document.addEventListener('DOMContentLoaded', function() {
             // Sort images by number
             loadedImages.sort((a, b) => a.number - b.number);
             
+            if (loadedImages.length === 0) {
+                document.querySelector('.gallery').style.display = 'none';
+                return;
+            }
+            
+            // Create multiple copies of all images for infinite loop effect
+            const originalImages = [...loadedImages];
+            const repetitions = 10; // Create 10 copies of the sequence
+            loadedImages = [];
+            
+            for (let rep = 0; rep < repetitions; rep++) {
+                originalImages.forEach((imageData, index) => {
+                    loadedImages.push({
+                        ...imageData,
+                        id: `rep-${rep}-${index}`,
+                        alt: `${imageData.alt} (${rep * originalImages.length + index + 1})`
+                    });
+                });
+            }
+            
             // Create gallery items
-            loadedImages.forEach(imageData => {
+            loadedImages.forEach((imageData, index) => {
                 const galleryItem = document.createElement('div');
                 galleryItem.className = 'gallery-item';
                 
@@ -91,9 +114,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Gallery functionality
     function initializeGallery() {
         const gallerySlider = document.querySelector('.gallery-slider');
-        const galleryItems = document.querySelectorAll('.gallery-item');
         const galleryPrev = document.getElementById('galleryPrev');
         const galleryNext = document.getElementById('galleryNext');
+        
+        // Query items and images after they've been added to the DOM
+        const galleryItems = document.querySelectorAll('.gallery-item');
         const galleryImages = document.querySelectorAll('.gallery-image');
         
         if (galleryItems.length === 0) {
@@ -103,32 +128,70 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         let currentIndex = 0;
-        const itemWidth = 320; // 300px + 20px gap
+        const itemWidth = 320; // 300px + 20px gap  
+        const isMobile = window.innerWidth <= 768;
         const visibleItems = Math.floor(window.innerWidth / itemWidth);
-        const maxIndex = Math.max(0, galleryItems.length - visibleItems);
+        const totalImages = galleryItems.length;
         
-        function updateGallery() {
+        // Start in the middle of our repeated sequence to allow smooth infinite scrolling
+        const originalImageCount = totalImages / 10; // We made 10 repetitions
+        currentIndex = Math.floor(originalImageCount * 5); // Start at 5th repetition (middle)
+        
+        function updateGallery(instant = false) {
             const translateX = -currentIndex * itemWidth;
-            gallerySlider.style.transform = `translateX(${translateX}px)`;
             
-            // Update button states
-            galleryPrev.style.opacity = currentIndex === 0 ? '0.5' : '1';
-            galleryNext.style.opacity = currentIndex >= maxIndex ? '0.5' : '1';
+            if (instant) {
+                // For seamless jumping, disable transition temporarily
+                gallerySlider.style.transition = 'none';
+                gallerySlider.style.transform = `translateX(${translateX}px)`;
+                
+                // Re-enable transition after a brief moment
+                setTimeout(() => {
+                    const transitionDuration = isMobile ? '0.8s' : '0.5s';
+                    gallerySlider.style.transition = `transform ${transitionDuration} ease`;
+                }, 10);
+            } else {
+                // Normal smooth transition - slower on mobile
+                const transitionDuration = isMobile ? '0.8s' : '0.5s';
+                gallerySlider.style.transition = `transform ${transitionDuration} ease`;
+                gallerySlider.style.transform = `translateX(${translateX}px)`;
+            }
+            
+            // Keep buttons always active
+            if (galleryPrev) galleryPrev.style.opacity = '1';
+            if (galleryNext) galleryNext.style.opacity = '1';
         }
         
-        galleryPrev.addEventListener('click', function() {
-            if (currentIndex > 0) {
+        // Add click event listeners for infinite scrolling
+        if (galleryPrev) {
+            galleryPrev.addEventListener('click', function() {
+                console.log('Previous clicked, currentIndex:', currentIndex); // Debug log
                 currentIndex--;
-                updateGallery();
-            }
-        });
+                
+                // If we're getting close to the beginning, jump to near the end
+                if (currentIndex < originalImageCount) {
+                    currentIndex = totalImages - originalImageCount - visibleItems + currentIndex;
+                    updateGallery(true); // Instant jump for seamless loop
+                } else {
+                    updateGallery(); // Normal smooth transition
+                }
+            });
+        }
         
-        galleryNext.addEventListener('click', function() {
-            if (currentIndex < maxIndex) {
+        if (galleryNext) {
+            galleryNext.addEventListener('click', function() {
+                console.log('Next clicked, currentIndex:', currentIndex); // Debug log
                 currentIndex++;
-                updateGallery();
-            }
-        });
+                
+                // If we're getting close to the end, jump back to near the beginning
+                if (currentIndex > totalImages - originalImageCount - visibleItems) {
+                    currentIndex = originalImageCount + (currentIndex - (totalImages - originalImageCount - visibleItems));
+                    updateGallery(true); // Instant jump for seamless loop
+                } else {
+                    updateGallery(); // Normal smooth transition
+                }
+            });
+        }
         
         // Lightbox functionality
         const lightbox = document.getElementById('lightbox');
