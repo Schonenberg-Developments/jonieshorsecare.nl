@@ -15,49 +15,86 @@ const texts = {
             buttonText: "Lees meer",
             buttonTextLess: "Minder tonen",
             details: {
-                title: "Premium Pensiondiensten",
-                items: [
-                    "Ruime stallen met dagelijkse reiniging",
-                    "Voedingsprogramma's met kwalitatief hooi en krachtvoer",
-                    "24/7 beveiliging en toezicht",
-                    "Grote weilanden voor weidegang",
-                    "Professioneel personeel ter plaatse"
+                sections: [
+                    {
+                        title: "Premium Pensiondiensten",
+                        items: [
+                            "Ruime stallen met dagelijkse reiniging",
+                            "Stro bodembedekking of houtvezels",
+                            "Voedingsprogramma's met kwalitatief hooi en krachtvoer",
+                            "24/7 beveiliging en toezicht",
+                            "Weilanden en paddocks",
+                            "Professioneel personeel ter plaatse"
+                        ]
+                    },
+                    {
+                        title: "27/4 buiten",
+                        items: [
+                            "Paddock of weide",
+                            "Voedingsprogramma's met kwalitatief hooi en krachtvoer",
+                            "24/7 beveiliging en toezicht",
+                            "Dagelijks uitmesten van paddocks"
+                        ]
+                    },
+                    {
+                        title: "Half pension",
+                        items: [
+                            "Zowel stalling als 24/7 buiten",
+                            "Voedingsprogramma's met kwalitatief hooi en krachtvoer",
+                            "24/7 beveiliging en toezicht",
+                            "Zelf uitmesten en binnen buiten zetten"
+                        ]
+                    }
                 ]
             }
         },
         
         riding: {
             title: "Rij- en Grondwerklessen",
-            description: "Persoonlijke rij-instructie voor alle niveaus",
+            description: "Persoonlijke rij-instructie voor alle niveaus - Zowel kinderen als volwassenen",
             buttonText: "Lees meer",
             buttonTextLess: "Minder tonen",
             details: {
-                title: "Uitgebreide Trainingsprogramma's",
-                items: [
-                    "Rijlessen van beginner tot gevorderd niveau",
-                    "Grondwerk en vaardigheden in omgang met paarden",
-                    "Technieken van natuurlijk horsemanship",
-                    "Instructie in dressuur en springen",
-                    "Voorbereiding op buitenritten",
-                    "Paardengedrag en communicatie"
+                sections: [
+                    {
+                        title: "Uitgebreide Trainingsprogramma's",
+                        items: [
+                            "Rijlessen van beginner tot gevorderd niveau",
+                            "Grondwerk en vaardigheden in omgang met paarden",
+                            "Technieken van natuurlijk horsemanship",
+                            "Instructie in dressuur t/m M",
+                            "Voorbereiding op buitenritten",
+                            "Paardengedrag en communicatie",
+                            "Betere band met je paard",
+                            "Zadelmak maken van u paard",
+                            "Begeleiding bij het zadelmak maken",
+                            "Op locatie of op mijn locatie",
+                            "Tijdelijke stalling mogelijk"
+                        ]
+                    }
                 ]
             }
         },
         
         trauma: {
             title: "Training voor Traumaverwerking",
-            description: "Paarden ondersteunen bij revalidatie en herstel",
+            description: "Paarden ondersteunen bij revalidatie van trauma's, herstel en voeding",
             buttonText: "Lees meer",
             buttonTextLess: "Minder tonen",
             details: {
-                title: "Gespecialiseerde Revalidatiediensten",
-                items: [
-                    "Traumabewuste trainingsmethoden",
-                    "Voorzichtige hertraining voor opvangpaarden",
-                    "Gedragsveranderingsprogramma's",
-                    "Oefeningen voor het opbouwen van vertrouwen",
-                    "Technieken voor stressvermindering",
-                    "Samenwerking met dierenartsen"
+                sections: [
+                    {
+                        title: "Gespecialiseerde Revalidatiediensten",
+                        items: [
+                            "Traumabewuste trainingsmethoden",
+                            "Voorzichtige hertraining voor project paarden",
+                            "Gedragsveranderingsprogramma's",
+                            "Oefeningen voor het opbouwen van vertrouwen",
+                            "Technieken voor stressvermindering",
+                            "Voedingsschema's",
+                            "Samenwerking met dierenartsen"
+                        ]
+                    }
                 ]
             }
         }
@@ -72,16 +109,16 @@ const texts = {
         title: "Neem contact op",
         description: "Klaar om je paard te helpen bloeien? Neem contact met ons op voor meer informatie over onze diensten en om een consult in te plannen.",
         phone: {
-            label: "Phone:",
-            value: "+31 6 1234 5678"
+            label: "Mobiel:",
+            value: "06 40929498"
         },
         email: {
             label: "Email:",
-            value: "info@jonieswebsite.com"
+            value: "contact@jonieshorsecare.nl"
         },
         address: {
             label: "Adress:",
-            value: "ztraatnaam 123, 1234 AB Plaatsnaam"
+            value: "straatnaam 123, 1234 AB Plaatsnaam"
         }
     },
     
@@ -144,7 +181,7 @@ function loadTexts() {
     if (footerText) footerText.textContent = texts.footer.copyright;
 }
 
-// Helper function to update service cards
+// Helper function to update service cards with new subsection structure
 function updateServiceCard(serviceKey, serviceData) {
     const cards = document.querySelectorAll('.service-card');
     const serviceIcons = {
@@ -158,23 +195,69 @@ function updateServiceCard(serviceKey, serviceData) {
         const title = card.querySelector('h3');
         const description = card.querySelector('p');
         const button = card.querySelector('.expand-btn');
-        const detailsTitle = card.querySelector('.details-content h4');
-        const detailsList = card.querySelector('.details-content ul');
+        const detailsContent = card.querySelector('.details-content');
         
         // Check if this is the right service card by matching the icon class
         if (icon && icon.classList.contains(serviceIcons[serviceKey])) {
             if (title) title.textContent = serviceData.title;
             if (description) description.textContent = serviceData.description;
             if (button) button.textContent = serviceData.buttonText;
-            if (detailsTitle) detailsTitle.textContent = serviceData.details.title;
             
-            // Update details list
-            if (detailsList) {
-                detailsList.innerHTML = '';
-                serviceData.details.items.forEach(item => {
-                    const li = document.createElement('li');
-                    li.textContent = item;
-                    detailsList.appendChild(li);
+            // Update details content with new collapsible subsection structure
+            if (detailsContent && serviceData.details.sections) {
+                detailsContent.innerHTML = '';
+                
+                serviceData.details.sections.forEach((section, sectionIndex) => {
+                    // Create collapsible section container
+                    const sectionContainer = document.createElement('div');
+                    sectionContainer.className = 'service-subsection-container';
+                    
+                    // Create clickable section header with arrow
+                    const sectionHeader = document.createElement('h4');
+                    sectionHeader.innerHTML = `
+                        <span class="subsection-arrow">▼</span>
+                        <span class="subsection-title">${section.title}</span>
+                    `;
+                    sectionHeader.className = 'service-subsection-title collapsible';
+                    sectionHeader.setAttribute('data-section-id', `${serviceKey}-section-${sectionIndex}`);
+                    
+                    // Create section list
+                    const sectionList = document.createElement('ul');
+                    sectionList.className = 'service-subsection-list';
+                    sectionList.setAttribute('data-section-id', `${serviceKey}-section-${sectionIndex}`);
+                    section.items.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = item;
+                        sectionList.appendChild(li);
+                    });
+                    
+                    // Add click event to toggle section
+                    sectionHeader.addEventListener('click', function() {
+                        const isExpanded = sectionList.classList.contains('expanded');
+                        const arrow = sectionHeader.querySelector('.subsection-arrow');
+                        
+                        if (isExpanded) {
+                            sectionList.classList.remove('expanded');
+                            arrow.textContent = '►';
+                            sectionHeader.classList.remove('expanded');
+                        } else {
+                            sectionList.classList.add('expanded');
+                            arrow.textContent = '▼';
+                            sectionHeader.classList.add('expanded');
+                        }
+                    });
+                    
+                    // Append elements to container
+                    sectionContainer.appendChild(sectionHeader);
+                    sectionContainer.appendChild(sectionList);
+                    detailsContent.appendChild(sectionContainer);
+                    
+                    // Add spacing between sections (except for the last one)
+                    if (sectionIndex < serviceData.details.sections.length - 1) {
+                        const spacer = document.createElement('div');
+                        spacer.className = 'service-section-spacer';
+                        detailsContent.appendChild(spacer);
+                    }
                 });
             }
         }

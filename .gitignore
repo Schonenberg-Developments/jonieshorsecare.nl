@@ -1,0 +1,40 @@
+# Temporary files and folders
+temp/
+tmp/
+*.tmp
+
+# System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Log files
+*.log
+logs/
+
+# Backup files
+*.bak
+*.backup
+
+# Node modules (in case you add any build tools later)
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Build outputs (if you add a build process later)
+dist/
+build/
