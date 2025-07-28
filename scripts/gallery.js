@@ -314,16 +314,27 @@ document.addEventListener('DOMContentLoaded', function() {
             img.src = imageData.src;
             img.alt = imageData.alt;
             img.className = 'gallery-image';
-            img.loading = 'lazy';
+            // Remove lazy loading as it might be causing issues
+            // img.loading = 'lazy';
+            
+            // Add timeout to prevent hanging
+            const timeout = setTimeout(() => {
+                console.log(`Gallery: Timeout loading ${imageData.name}`);
+                resolve(null);
+            }, 5000); // 5 second timeout
             
             img.onload = () => {
+                clearTimeout(timeout);
                 console.log(`Gallery: Image element loaded successfully for ${imageData.name}`);
                 resolve(img);
             };
             img.onerror = () => {
+                clearTimeout(timeout);
                 console.log(`Gallery: Image element failed to load for ${imageData.name}`);
                 resolve(null);
             };
+            
+            console.log(`Gallery: Image src set to: ${img.src}`);
         });
     }
     
