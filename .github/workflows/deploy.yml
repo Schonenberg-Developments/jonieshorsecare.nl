@@ -23,7 +23,6 @@ jobs:
         remote_user: ${{ secrets.USERNAME }}
         remote_key: ${{ secrets.SSH_KEY }}
         remote_port: ${{ secrets.PORT }}
-        rsh: ssh -o StrictHostKeyChecking=no
         
     - name: Set proper permissions
       uses: appleboy/ssh-action@v1.0.0
