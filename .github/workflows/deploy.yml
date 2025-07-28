@@ -46,7 +46,9 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.PORT }}
         script: |
-          # Set proper ownership and permissions for web files
-          sudo chown -R deploy:www-data /home/deploy/static-sites/jonieshorsecare.nl/
-          sudo find /home/deploy/static-sites/jonieshorsecare.nl/ -type d -exec chmod 755 {} \;
-          sudo find /home/deploy/static-sites/jonieshorsecare.nl/ -type f -exec chmod 644 {} \;
+          # Set proper ownership and permissions for web files (without sudo since deploy user owns the files)
+          chown -R deploy:www-data /home/deploy/static-sites/jonieshorsecare.nl/ || echo "chown failed, but continuing"
+          find /home/deploy/static-sites/jonieshorsecare.nl/ -type d -exec chmod 755 {} \; || echo "chmod dirs failed, but continuing"
+          find /home/deploy/static-sites/jonieshorsecare.nl/ -type f -exec chmod 644 {} \; || echo "chmod files failed, but continuing"
+          echo "Permissions set (with possible warnings above)"
+          ls -la /home/deploy/static-sites/jonieshorsecare.nl/
