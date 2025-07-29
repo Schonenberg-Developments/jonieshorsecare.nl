@@ -1,0 +1,27 @@
+{
+  "name": "jonies-horse-care",
+  "version": "1.0.0",
+  "description": "Jonie's Horse Care - Professional horse boarding, training and trauma recovery services",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy": "npm run build && rsync -avz --delete dist/ deploy@your-server:/home/deploy/static-sites/jonieshorsecare.nl/"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "dependencies": {
+    "micromodal": "^0.4.10"
+  },
+  "keywords": [
+    "horses",
+    "boarding",
+    "training",
+    "trauma-recovery",
+    "natural-horsemanship"
+  ],
+  "author": "Jonie's Horse Care",
+  "license": "MIT"
+}

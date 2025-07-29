@@ -1,4 +1,4 @@
-name: Deploy Static Site
+name: Deploy Vite Static Site
 
 on:
   push:
@@ -13,6 +13,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build production site
+      run: npm run build
+      
     - name: Prepare deployment directory
       uses: appleboy/ssh-action@v1.0.0
       with:
@@ -22,7 +34,7 @@ jobs:
         port: ${{ secrets.PORT }}
         script: |
           # Ensure the deployment directory structure exists
-          mkdir -p /home/deploy/static-sites/jonieshorsecare.nl/images
+          mkdir -p /home/deploy/static-sites/jonieshorsecare.nl
           chmod -R 755 /home/deploy/static-sites/jonieshorsecare.nl
           echo "Directory created and permissions set"
           ls -la /home/deploy/static-sites/jonieshorsecare.nl/
@@ -30,8 +42,8 @@ jobs:
     - name: Deploy via rsync
       uses: burnett01/rsync-deployments@6.0.0
       with:
-        switches: -avzr --delete --exclude='.git' --exclude='node_modules' --exclude='.github'
-        path: ./
+        switches: -avzr --delete --exclude='.git' --exclude='node_modules' --exclude='.github' --exclude='src' --exclude='*.md' --exclude='package*.json' --exclude='vite.config.js'
+        path: ./dist/
         remote_path: /home/deploy/static-sites/jonieshorsecare.nl/
         remote_host: ${{ secrets.HOST }}
         remote_user: ${{ secrets.USERNAME }}
@@ -46,9 +58,36 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.PORT }}
         script: |
-          # Set proper ownership and permissions for web files (without sudo since deploy user owns the files)
+          # Set proper ownership and permissions for web files
           chown -R deploy:www-data /home/deploy/static-sites/jonieshorsecare.nl/ || echo "chown failed, but continuing"
           find /home/deploy/static-sites/jonieshorsecare.nl/ -type d -exec chmod 755 {} \; || echo "chmod dirs failed, but continuing"
           find /home/deploy/static-sites/jonieshorsecare.nl/ -type f -exec chmod 644 {} \; || echo "chmod files failed, but continuing"
           echo "Permissions set (with possible warnings above)"
           ls -la /home/deploy/static-sites/jonieshorsecare.nl/
+          
+    - name: Verify deployment
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          echo "=== Deployment Verification ==="
+          echo "Files in deployment directory:"
+          ls -la /home/deploy/static-sites/jonieshorsecare.nl/
+          echo "Checking if index.html exists:"
+          if [ -f /home/deploy/static-sites/jonieshorsecare.nl/index.html ]; then
+            echo "✅ index.html found"
+            echo "File size: $(du -h /home/deploy/static-sites/jonieshorsecare.nl/index.html)"
+          else
+            echo "❌ index.html not found"
+            exit 1
+          fi
+          echo "Checking assets directory:"
+          if [ -d /home/deploy/static-sites/jonieshorsecare.nl/assets ]; then
+            echo "✅ assets directory found"
+            echo "Assets: $(ls -1 /home/deploy/static-sites/jonieshorsecare.nl/assets/ | wc -l) files"
+          else
+            echo "⚠️ assets directory not found"
+          fi

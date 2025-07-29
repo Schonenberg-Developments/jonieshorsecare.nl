@@ -15,37 +15,15 @@ const texts = {
             buttonText: "Lees meer",
             buttonTextLess: "Minder tonen",
             details: {
-                sections: [
-                    {
-                        title: "Premium Pensiondiensten",
-                        items: [
-                            "Ruime stallen met dagelijkse reiniging",
-                            "Stro bodembedekking of houtvezels",
-                            "Voedingsprogramma's met kwalitatief hooi en krachtvoer",
-                            "24/7 beveiliging en toezicht",
-                            "Weilanden en paddocks",
-                            "Professioneel personeel ter plaatse"
-                        ]
-                    },
-                    {
-                        title: "27/4 buiten",
-                        items: [
-                            "Paddock of weide",
-                            "Voedingsprogramma's met kwalitatief hooi en krachtvoer",
-                            "24/7 beveiliging en toezicht",
-                            "Dagelijks uitmesten van paddocks"
-                        ]
-                    },
-                    {
-                        title: "Half pension",
-                        items: [
-                            "Zowel stalling als 24/7 buiten",
-                            "Voedingsprogramma's met kwalitatief hooi en krachtvoer",
-                            "24/7 beveiliging en toezicht",
-                            "Zelf uitmesten en binnen buiten zetten"
-                        ]
-                    }
-                ]
+                summary: "Wij bieden verschillende pensiondiensten aan, van volledige stalling tot 24/7 buitenverblijf. Elk paard krijgt zorgvuldige aandacht en kwaliteitsvoeding.",
+                highlights: [
+                    "Premium stalling met dagelijkse zorg",
+                    "24/7 buitenverblijf opties",
+                    "Half pension mogelijkheden",
+                    "Kwalitatief voer en professioneel personeel"
+                ],
+                learnMoreLink: "modal-pensionstal",
+                learnMoreText: "Meer over onze pensiondiensten"
             }
         },
         
@@ -55,24 +33,15 @@ const texts = {
             buttonText: "Lees meer",
             buttonTextLess: "Minder tonen",
             details: {
-                sections: [
-                    {
-                        title: "Uitgebreide Trainingsprogramma's",
-                        items: [
-                            "Rijlessen van beginner tot gevorderd niveau",
-                            "Grondwerk en vaardigheden in omgang met paarden",
-                            "Technieken van natuurlijk horsemanship",
-                            "Instructie in dressuur t/m M",
-                            "Voorbereiding op buitenritten",
-                            "Paardengedrag en communicatie",
-                            "Betere band met je paard",
-                            "Zadelmak maken van u paard",
-                            "Begeleiding bij het zadelmak maken",
-                            "Op locatie of op mijn locatie",
-                            "Tijdelijke stalling mogelijk"
-                        ]
-                    }
-                ]
+                summary: "Van beginners tot gevorderde ruiters, wij bieden persoonlijke lessen in rijden, grondwerk en natuurlijk horsemanship. Ook zadelmak maken en begeleiding mogelijk.",
+                highlights: [
+                    "Rijlessen voor alle niveaus (beginner tot dressuur M)",
+                    "Grondwerk en natuurlijk horsemanship",
+                    "Zadelmak maken en begeleiding",
+                    "Op locatie of bij ons - tijdelijke stalling mogelijk"
+                ],
+                learnMoreLink: "modal-rijlessen",
+                learnMoreText: "Meer over onze lessen"
             }
         },
         
@@ -82,20 +51,15 @@ const texts = {
             buttonText: "Lees meer",
             buttonTextLess: "Minder tonen",
             details: {
-                sections: [
-                    {
-                        title: "Gespecialiseerde Revalidatiediensten",
-                        items: [
-                            "Traumabewuste trainingsmethoden",
-                            "Voorzichtige hertraining voor project paarden",
-                            "Gedragsveranderingsprogramma's",
-                            "Oefeningen voor het opbouwen van vertrouwen",
-                            "Technieken voor stressvermindering",
-                            "Voedingsschema's",
-                            "Samenwerking met dierenartsen"
-                        ]
-                    }
-                ]
+                summary: "Gespecialiseerde zorg voor paarden die traumatische ervaringen hebben gehad. Met geduldige, traumabewuste methoden helpen we paarden weer vertrouwen op te bouwen.",
+                highlights: [
+                    "Traumabewuste trainingsmethoden",
+                    "Hertraining voor project paarden",
+                    "Vertrouwen opbouwen en stressvermindering",
+                    "Voedingsschema's en samenwerking met dierenartsen"
+                ],
+                learnMoreLink: "modal-trauma-recovery",
+                learnMoreText: "Meer over trauma recovery"
             }
         }
     },
@@ -114,9 +78,12 @@ const texts = {
         },
         email: {
             label: "Email:",
-            value: "jonieshorsecare@hotmail.com"
+            value: "contact@jonieshorsecare.nl"
         },
-        
+        address: {
+            label: "Adress:",
+            value: "straatnaam 123, 1234 AB Plaatsnaam"
+        }
     },
     
     footer: {
@@ -178,7 +145,7 @@ function loadTexts() {
     if (footerText) footerText.textContent = texts.footer.copyright;
 }
 
-// Helper function to update service cards with new subsection structure
+// Helper function to update service cards with new simplified structure
 function updateServiceCard(serviceKey, serviceData) {
     const cards = document.querySelectorAll('.service-card');
     const serviceIcons = {
@@ -200,62 +167,46 @@ function updateServiceCard(serviceKey, serviceData) {
             if (description) description.textContent = serviceData.description;
             if (button) button.textContent = serviceData.buttonText;
             
-            // Update details content with new collapsible subsection structure
-            if (detailsContent && serviceData.details.sections) {
+            // Update details content with new simplified structure
+            if (detailsContent && serviceData.details) {
                 detailsContent.innerHTML = '';
                 
-                serviceData.details.sections.forEach((section, sectionIndex) => {
-                    // Create collapsible section container
-                    const sectionContainer = document.createElement('div');
-                    sectionContainer.className = 'service-subsection-container';
+                // Add summary paragraph
+                if (serviceData.details.summary) {
+                    const summaryParagraph = document.createElement('p');
+                    summaryParagraph.textContent = serviceData.details.summary;
+                    summaryParagraph.className = 'service-summary';
+                    detailsContent.appendChild(summaryParagraph);
+                }
+                
+                // Add highlights list
+                if (serviceData.details.highlights && serviceData.details.highlights.length > 0) {
+                    const highlightsList = document.createElement('ul');
+                    highlightsList.className = 'service-highlights';
                     
-                    // Create clickable section header with arrow
-                    const sectionHeader = document.createElement('h4');
-                    sectionHeader.innerHTML = `
-                        <span class="subsection-arrow">▼</span>
-                        <span class="subsection-title">${section.title}</span>
-                    `;
-                    sectionHeader.className = 'service-subsection-title collapsible';
-                    sectionHeader.setAttribute('data-section-id', `${serviceKey}-section-${sectionIndex}`);
-                    
-                    // Create section list
-                    const sectionList = document.createElement('ul');
-                    sectionList.className = 'service-subsection-list';
-                    sectionList.setAttribute('data-section-id', `${serviceKey}-section-${sectionIndex}`);
-                    section.items.forEach(item => {
+                    serviceData.details.highlights.forEach(highlight => {
                         const li = document.createElement('li');
-                        li.textContent = item;
-                        sectionList.appendChild(li);
+                        li.textContent = highlight;
+                        highlightsList.appendChild(li);
                     });
                     
-                    // Add click event to toggle section
-                    sectionHeader.addEventListener('click', function() {
-                        const isExpanded = sectionList.classList.contains('expanded');
-                        const arrow = sectionHeader.querySelector('.subsection-arrow');
-                        
-                        if (isExpanded) {
-                            sectionList.classList.remove('expanded');
-                            arrow.textContent = '►';
-                            sectionHeader.classList.remove('expanded');
-                        } else {
-                            sectionList.classList.add('expanded');
-                            arrow.textContent = '▼';
-                            sectionHeader.classList.add('expanded');
-                        }
-                    });
+                    detailsContent.appendChild(highlightsList);
+                }
+                
+                // Add "Learn More" button
+                if (serviceData.details.learnMoreLink) {
+                    const learnMoreContainer = document.createElement('div');
+                    learnMoreContainer.className = 'learn-more-container';
                     
-                    // Append elements to container
-                    sectionContainer.appendChild(sectionHeader);
-                    sectionContainer.appendChild(sectionList);
-                    detailsContent.appendChild(sectionContainer);
+                    const learnMoreButton = document.createElement('a');
+                    learnMoreButton.href = serviceData.details.learnMoreLink;
+                    learnMoreButton.textContent = serviceData.details.learnMoreText || 'Lees meer';
+                    learnMoreButton.className = 'learn-more-btn';
+                    learnMoreButton.target = '_self'; // Opens in same window
                     
-                    // Add spacing between sections (except for the last one)
-                    if (sectionIndex < serviceData.details.sections.length - 1) {
-                        const spacer = document.createElement('div');
-                        spacer.className = 'service-section-spacer';
-                        detailsContent.appendChild(spacer);
-                    }
-                });
+                    learnMoreContainer.appendChild(learnMoreButton);
+                    detailsContent.appendChild(learnMoreContainer);
+                }
             }
         }
     });
