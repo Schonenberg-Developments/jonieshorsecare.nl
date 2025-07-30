@@ -116,15 +116,36 @@ function applyTextsToPage() {
     if (contactTitle && textsData.contact.title) contactTitle.textContent = textsData.contact.title;
     if (contactDescription && textsData.contact.description) contactDescription.textContent = textsData.contact.description;
     
-    // Update contact info
+    // Update contact info with clickable links
     const contactItems = document.querySelectorAll('.contact-item');
-    const contactData = [textsData.contact.phone, textsData.contact.email, textsData.contact.address];
     
-    contactItems.forEach((item, index) => {
-        if (contactData[index]) {
-            item.innerHTML = `<strong>${contactData[index].label}</strong> ${contactData[index].value}`;
+    if (contactItems.length >= 2) {
+        // Phone number - make it clickable
+        if (textsData.contact.phone) {
+            const phoneNumber = textsData.contact.phone.value.replace(/\s/g, ''); // Remove spaces for tel: link
+            contactItems[0].innerHTML = `<strong>${textsData.contact.phone.label}</strong> <a href="tel:${phoneNumber}" class="contact-link">${textsData.contact.phone.value}</a>`;
         }
-    });
+        
+        // Email - obfuscated and clickable
+        if (textsData.contact.email) {
+            const emailParts = textsData.contact.email.value.split('@');
+            const emailUser = emailParts[0];
+            const emailDomain = emailParts[1];
+            // Create obfuscated email using HTML entities and JavaScript
+            contactItems[1].innerHTML = `<strong>${textsData.contact.email.label}</strong> <span class="email-obfuscated" data-user="${emailUser}" data-domain="${emailDomain}">Click to reveal email</span>`;
+            
+            // Add click handler for email reveal
+            const emailSpan = contactItems[1].querySelector('.email-obfuscated');
+            if (emailSpan) {
+                emailSpan.addEventListener('click', function() {
+                    const user = this.getAttribute('data-user');
+                    const domain = this.getAttribute('data-domain');
+                    const email = user + '@' + domain;
+                    this.innerHTML = `<a href="mailto:${email}" class="contact-link">${email}</a>`;
+                });
+            }
+        }
+    }
     
     // Update footer
     const footerText = document.querySelector('footer p');
