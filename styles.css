@@ -529,14 +529,21 @@ body {
 }
 
 .modal-service-content {
-    display: grid;
-    grid-template-columns: 1fr 350px;
-    gap: 0;
+    display: block;
     min-height: 400px;
 }
 
 .modal-text-content {
-    padding: 40px;
+    padding: 0 40px 40px 40px;
+}
+
+.modal-hero-image {
+    width: calc(100% - 60px);
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin: 0 30px 30px 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .modal-intro {
@@ -810,11 +817,6 @@ footer {
         margin: 10px;
     }
     
-    .modal-service-content {
-        grid-template-columns: 1fr;
-        gap: 0;
-    }
-    
     .modal__header {
         padding: 20px 25px 15px;
     }
@@ -824,7 +826,13 @@ footer {
     }
     
     .modal-text-content {
-        padding: 25px;
+        padding: 0 25px 25px 25px;
+    }
+    
+    .modal-hero-image {
+        width: calc(100% - 30px);
+        margin: 0 15px 25px 15px;
+        height: 180px;
     }
     
     .modal-intro {
@@ -839,22 +847,6 @@ footer {
         padding: 20px;
     }
     
-    .modal-image-content {
-        padding: 25px;
-    }
-    
-    .modal-gallery {
-        flex-direction: row;
-        overflow-x: auto;
-        gap: 15px;
-        padding-bottom: 10px;
-    }
-    
-    .modal-image {
-        flex: 0 0 120px;
-        height: 120px;
-    }
-    
     .cta-button {
         padding: 12px 25px;
         font-size: 1rem;
@@ -863,15 +855,12 @@ footer {
 
 /* Tablet responsive */
 @media (max-width: 1024px) and (min-width: 769px) {
-    .modal-service-content {
-        grid-template-columns: 1fr 300px;
-    }
-    
     .modal-text-content {
-        padding: 35px;
+        padding: 0 35px 35px 35px;
     }
     
-    .modal-image-content {
-        padding: 35px 25px;
+    .modal-hero-image {
+        width: calc(100% - 50px);
+        margin: 0 25px 25px 25px;
     }
 }

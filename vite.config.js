@@ -25,7 +25,7 @@ export default defineConfig({
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name.split('.')
           const ext = info[info.length - 1]
-          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico|webp/i.test(ext)) {
             return `assets/images/[name]-[hash][extname]`
           }
           if (/css/i.test(ext)) {
@@ -40,7 +40,9 @@ export default defineConfig({
         drop_console: true,
         drop_debugger: true
       }
-    }
+    },
+    // Increase asset size limit for images
+    assetsInlineLimit: 0 // Don't inline any assets to keep file paths predictable
   },
   
   // Asset handling
@@ -49,5 +51,8 @@ export default defineConfig({
   // CSS configuration
   css: {
     devSourcemap: false
-  }
+  },
+  
+  // Public directory
+  publicDir: 'public'
 })

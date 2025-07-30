@@ -6,10 +6,45 @@
     <title></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- Preload critical images -->
+    <link rel="preload" as="image" href="./images/hero_image.png">
+    
+    <!-- Add loading styles -->
+    <style>
+        /* Loading states for images */
+        .hero-image {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .hero-image.loaded {
+            opacity: 1;
+        }
+        
+        .modal-image {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal-image.loaded {
+            opacity: 1;
+        }
+        
+        /* Better loading experience */
+        .hero-image[data-loading="true"] {
+            background: linear-gradient(90deg, #e8ddd4 25%, #f0f0f0 50%, #e8ddd4 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
 </head>
 <body>
     <header class="hero">
-        <img src="images/hero_image.png" alt="Jonie's stables" class="hero-image">
+        <img src="./images/hero_image.png" alt="Jonie's stables" class="hero-image" data-loading="true" onload="this.classList.add('loaded'); this.removeAttribute('data-loading');">
     </header>
 
     <div class="hero-subtitle">
@@ -106,7 +141,7 @@
             </div>
         </div>
 
-        <section class="contact">
+        <section class="contact" id="contact">
             <h2></h2>
             <p></p>
             <div class="contact-info">
@@ -133,6 +168,9 @@
                 <div class="modal__content">
                     <div class="modal-service-content">
                         <div class="modal-text-content">
+                            <!-- Hero image right under the title -->
+                            <img src="./images/stable-1.jpg" alt="Stallen" class="modal-hero-image" onload="this.classList.add('loaded')" onerror="this.style.display='none'">
+                            
                             <p class="modal-intro">
                                 Bij Jonie's Horse Care bieden we verschillende pensiondiensten aan, van volledige stalling tot 24/7 buitenverblijf. Elk paard krijgt persoonlijke aandacht en zorgvuldige verzorging.
                             </p>
@@ -175,14 +213,6 @@
                                 <a href="#contact" class="cta-button" data-micromodal-close>Contact opnemen</a>
                             </div>
                         </div>
-                        
-                        <div class="modal-image-content">
-                            <div class="modal-gallery">
-                                <img src="images/stable-1.jpg" alt="Stallen" class="modal-image" onerror="this.style.display='none'">
-                                <img src="images/paddock-1.jpg" alt="Paddock" class="modal-image" onerror="this.style.display='none'">
-                                <img src="images/pasture-1.jpg" alt="Weide" class="modal-image" onerror="this.style.display='none'">
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -200,6 +230,9 @@
                 <div class="modal__content">
                     <div class="modal-service-content">
                         <div class="modal-text-content">
+                            <!-- Hero image right under the title -->
+                            <img src="./images/lesson-1.jpg" alt="Rijlessen" class="modal-hero-image" onload="this.classList.add('loaded')" onerror="this.style.display='none'">
+                            
                             <p class="modal-intro">
                                 Van beginners tot gevorderde ruiters, wij bieden persoonlijke lessen in rijden, grondwerk en natuurlijk horsemanship. Ook zadelmak maken en begeleiding is mogelijk.
                             </p>
@@ -240,14 +273,6 @@
                                 <h3>Klaar om te beginnen?</h3>
                                 <p>Boek een proefles of neem contact op voor meer informatie over onze lesprogramma's.</p>
                                 <a href="#contact" class="cta-button" data-micromodal-close>Proefles boeken</a>
-                            </div>
-                        </div>
-                        
-                        <div class="modal-image-content">
-                            <div class="modal-gallery">
-                                <img src="images/lesson-1.jpg" alt="Rijles" class="modal-image" onerror="this.style.display='none'">
-                                <img src="images/groundwork-1.jpg" alt="Grondwerk" class="modal-image" onerror="this.style.display='none'">
-                                <img src="images/training-1.jpg" alt="Training" class="modal-image" onerror="this.style.display='none'">
                             </div>
                         </div>
                     </div>

@@ -88,54 +88,48 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Load all images from gallery folder using images.json
+    // Load all gallery images using Vite's import.meta.glob
     async function loadAllGalleryImages() {
-        const galleryPath = 'images/gallery/';
-        
-        console.log('Gallery: Loading image list...');
+        console.log('Gallery: Starting Vite-optimized image loading...');
         
         try {
-            // Try to load the images.json file first
-            const imageList = await loadImageList(galleryPath + 'images.json');
-            if (imageList && imageList.length > 0) {
-                await loadImagesFromList(imageList, galleryPath);
+            // Try to dynamically import all images from the gallery folder
+            const modules = import.meta.glob('/images/gallery/*.{png,jpg,jpeg,gif,webp}', { eager: true });
+            
+            if (Object.keys(modules).length > 0) {
+                const imageList = Object.entries(modules).map(([path, module]) => ({
+                    src: module.default || path,
+                    name: path.split('/').pop(),
+                    alt: `${texts.gallery.imageAlt} - ${path.split('/').pop()}`
+                }));
+                
+                console.log(`Gallery: Found ${imageList.length} images via Vite import.meta.glob`);
+                await loadImagesFromViteModules(imageList);
                 return;
             }
         } catch (error) {
-            console.log('Gallery: No images.json found, falling back to pattern matching...');
+            console.log('Gallery: Vite import.meta.glob failed, falling back to URL checking...', error);
         }
         
-        // Fallback to pattern matching if no images.json
+        // Fallback to traditional URL checking
         await loadImagesUsingPatterns();
     }
     
-    // Load the images.json file
-    async function loadImageList(jsonPath) {
-        return fetch(jsonPath)
-            .then(response => {
-                if (!response.ok) throw new Error('No images.json');
-                return response.json();
-            })
-            .catch(() => null);
-    }
-    
-    // Load images from the JSON list
-    async function loadImagesFromList(imageList, galleryPath) {
-        console.log(`Gallery: Loading ${imageList.length} images from list...`);
-        
+    // Load images from Vite modules
+    async function loadImagesFromViteModules(imageList) {
         const loadedImages = [];
         let currentSkeletonIndex = 0;
         
         for (let i = 0; i < imageList.length; i++) {
-            const imageName = imageList[i];
-            const imagePath = galleryPath + imageName;
+            const imageData = imageList[i];
             
-            console.log(`Gallery: Checking image ${i + 1}/${imageList.length}: ${imageName}`);
+            console.log(`Gallery: Processing Vite image ${i + 1}/${imageList.length}: ${imageData.name}`);
             
-            const imageData = await checkAndLoadImage(imagePath, imageName);
+            // Verify the image can actually load
+            const verified = await verifyImageLoad(imageData.src, imageData.name);
             
-            if (imageData) {
-                console.log(`Gallery: Successfully loaded ${imageName}`);
+            if (verified) {
+                console.log(`Gallery: Successfully verified ${imageData.name}`);
                 
                 // Add more skeleton boxes if needed
                 if (currentSkeletonIndex >= document.querySelectorAll('.gallery-skeleton').length) {
@@ -143,29 +137,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Replace skeleton immediately
-                console.log(`Gallery: Replacing skeleton ${currentSkeletonIndex} with ${imageName}`);
                 await replaceSkeletonWithImage(currentSkeletonIndex, imageData);
                 loadedImages.push(imageData);
                 currentSkeletonIndex++;
                 
                 // Small delay for visual effect
-                await new Promise(resolve => setTimeout(resolve, 100));
+                await new Promise(resolve => setTimeout(resolve, 50));
             } else {
-                console.log(`Gallery: Failed to load ${imageName}`);
+                console.log(`Gallery: Failed to verify ${imageData.name}`);
             }
         }
         
-        console.log(`Gallery: Finished loading, found ${loadedImages.length} valid images`);
-        
         if (loadedImages.length === 0) {
-            showNoImagesMessage();
+            console.log('Gallery: No images loaded via Vite modules, trying fallback...');
+            await loadImagesUsingPatterns();
             return;
         }
         
         // Remove any unused skeleton boxes
         removeExtraSkeletons(loadedImages.length);
         
-        console.log(`Gallery: Loaded ${loadedImages.length} images total, initializing infinite loop...`);
+        console.log(`Gallery: Loaded ${loadedImages.length} images total via Vite, initializing infinite loop...`);
         
         // Create infinite loop and initialize after a brief delay
         setTimeout(() => {
@@ -173,52 +165,79 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 300);
     }
     
-    // Fallback: Load images using pattern matching (original method)
+    // Verify that an image can actually be loaded
+    async function verifyImageLoad(src, name) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            const timeout = setTimeout(() => {
+                console.log(`Gallery: Timeout verifying ${name}`);
+                resolve(false);
+            }, 3000);
+            
+            img.onload = () => {
+                clearTimeout(timeout);
+                resolve(true);
+            };
+            img.onerror = () => {
+                clearTimeout(timeout);
+                resolve(false);
+            };
+            img.src = src;
+        });
+    }
+    
+    // Fallback: Load images using pattern matching with relative paths
     async function loadImagesUsingPatterns() {
-        const galleryPath = 'images/gallery/';
-        const commonImageNames = [
-            // Try common numbered patterns first (faster)
-            '1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg', '7.jpg', '8.jpg', '9.jpg', '10.jpg',
-            '11.jpg', '12.jpg', '13.jpg', '14.jpg', '15.jpg', '16.jpg', '17.jpg', '18.jpg', '19.jpg', '20.jpg',
-            // Try other extensions for first few numbers
-            '1.jpeg', '1.png', '1.gif', '1.webp',
-            '2.jpeg', '2.png', '2.gif', '2.webp',
-            '3.jpeg', '3.png', '3.gif', '3.webp',
-            '4.jpeg', '4.png', '4.gif', '4.webp',
-            '5.jpeg', '5.png', '5.gif', '5.webp',
-            // Try some common naming patterns
-            'horse1.jpg', 'horse2.jpg', 'horse3.jpg', 'horse4.jpg', 'horse5.jpg',
-            'stable1.jpg', 'stable2.jpg', 'stable3.jpg', 'stable4.jpg', 'stable5.jpg',
-            'gallery1.jpg', 'gallery2.jpg', 'gallery3.jpg', 'gallery4.jpg', 'gallery5.jpg',
-            'img1.jpg', 'img2.jpg', 'img3.jpg', 'img4.jpg', 'img5.jpg',
-            'photo1.jpg', 'photo2.jpg', 'photo3.jpg', 'photo4.jpg', 'photo5.jpg'
+        console.log('Gallery: Using fallback pattern matching...');
+        
+        // Try both absolute and relative paths for better Vite compatibility
+        const basePaths = [
+            './images/gallery/',
+            '/images/gallery/',
+            'images/gallery/'
         ];
         
-        console.log('Gallery: Scanning for images...');
+        const commonImageNames = [
+            // Try common numbered patterns first
+            '1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg', '7.jpg', '8.jpg', '9.jpg', '10.jpg',
+            '1.jpeg', '1.png', '1.webp', '2.jpeg', '2.png', '2.webp', '3.jpeg', '3.png', '3.webp',
+            // Common naming patterns
+            'horse1.jpg', 'horse2.jpg', 'stable1.jpg', 'stable2.jpg', 'gallery1.jpg', 'gallery2.jpg'
+        ];
         
         const loadedImages = [];
         let currentSkeletonIndex = 0;
         
-        // Try to load each possible image
-        for (const imageName of commonImageNames) {
-            const imagePath = galleryPath + imageName;
-            const imageData = await checkAndLoadImage(imagePath, imageName);
+        // Try each base path with each image name
+        for (const basePath of basePaths) {
+            if (loadedImages.length >= 10) break; // Stop after finding enough images
             
-            if (imageData) {
-                console.log(`Gallery: Found ${imageName}`);
+            for (const imageName of commonImageNames) {
+                const imagePath = basePath + imageName;
+                const verified = await verifyImageLoad(imagePath, imageName);
                 
-                // Add more skeleton boxes if needed
-                if (currentSkeletonIndex >= document.querySelectorAll('.gallery-skeleton').length) {
-                    addSkeletonBox(currentSkeletonIndex);
+                if (verified) {
+                    console.log(`Gallery: Found image at ${imagePath}`);
+                    
+                    const imageData = {
+                        src: imagePath,
+                        name: imageName,
+                        alt: `${texts.gallery.imageAlt} - ${imageName}`
+                    };
+                    
+                    // Add more skeleton boxes if needed
+                    if (currentSkeletonIndex >= document.querySelectorAll('.gallery-skeleton').length) {
+                        addSkeletonBox(currentSkeletonIndex);
+                    }
+                    
+                    // Replace skeleton immediately
+                    await replaceSkeletonWithImage(currentSkeletonIndex, imageData);
+                    loadedImages.push(imageData);
+                    currentSkeletonIndex++;
+                    
+                    // Small delay for visual effect
+                    await new Promise(resolve => setTimeout(resolve, 100));
                 }
-                
-                // Replace skeleton immediately
-                await replaceSkeletonWithImage(currentSkeletonIndex, imageData);
-                loadedImages.push(imageData);
-                currentSkeletonIndex++;
-                
-                // Small delay for visual effect
-                await new Promise(resolve => setTimeout(resolve, 100));
             }
         }
         
@@ -230,26 +249,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Remove any unused skeleton boxes
         removeExtraSkeletons(loadedImages.length);
         
-        console.log(`Gallery: Loaded ${loadedImages.length} images total`);
+        console.log(`Gallery: Loaded ${loadedImages.length} images via fallback`);
         
         // Create infinite loop and initialize after a brief delay
         setTimeout(() => {
             createInfiniteLoopAndInitialize(loadedImages);
         }, 300);
-    }
-    
-    // Check if image exists and return data if found
-    async function checkAndLoadImage(imagePath, imageName) {
-        return new Promise((resolve) => {
-            const img = new Image();
-            img.onload = () => resolve({ 
-                src: imagePath, 
-                name: imageName,
-                alt: `${texts.gallery.imageAlt} - ${imageName}`
-            });
-            img.onerror = () => resolve(null);
-            img.src = imagePath;
-        });
     }
     
     // Add a single skeleton box
@@ -263,26 +268,18 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Replace a skeleton box with actual image immediately
     async function replaceSkeletonWithImage(skeletonIndex, imageData) {
-        console.log(`Gallery: Starting replacement for skeleton ${skeletonIndex}`);
-        
         const gallerySlider = document.getElementById('gallerySlider');
         const skeleton = gallerySlider.querySelector(`[data-skeleton-index="${skeletonIndex}"]`);
         
         if (!skeleton) {
-            console.log(`Gallery: No skeleton found with index ${skeletonIndex}`);
             return false;
         }
-        
-        console.log(`Gallery: Found skeleton ${skeletonIndex}, creating image...`);
         
         // Create the actual image element
         const img = await createGalleryImage(imageData);
         if (!img) {
-            console.log(`Gallery: Failed to create image for ${imageData.name}`);
             return false;
         }
-        
-        console.log(`Gallery: Image created successfully, replacing skeleton...`);
         
         // Create gallery item
         const galleryItem = document.createElement('div');
@@ -296,47 +293,36 @@ document.addEventListener('DOMContentLoaded', function() {
         // Replace skeleton with image
         skeleton.parentNode.replaceChild(galleryItem, skeleton);
         
-        console.log(`Gallery: Skeleton replaced, starting fade-in...`);
-        
         // Fade in the image
         setTimeout(() => {
             galleryItem.style.opacity = '1';
-            console.log(`Gallery: Fade-in complete for skeleton ${skeletonIndex}`);
         }, 50);
         
         return true;
     }
     
-    // Create a gallery image element
+    // Create a gallery image element with better error handling
     function createGalleryImage(imageData) {
-        console.log(`Gallery: Creating image element for ${imageData.name}`);
-        
         return new Promise((resolve) => {
             const img = document.createElement('img');
             img.src = imageData.src;
             img.alt = imageData.alt;
             img.className = 'gallery-image';
-            // Remove lazy loading as it might be causing issues
-            // img.loading = 'lazy';
+            img.loading = 'lazy';
             
             // Add timeout to prevent hanging
             const timeout = setTimeout(() => {
-                console.log(`Gallery: Timeout loading ${imageData.name}`);
                 resolve(null);
-            }, 5000); // 5 second timeout
+            }, 5000);
             
             img.onload = () => {
                 clearTimeout(timeout);
-                console.log(`Gallery: Image element loaded successfully for ${imageData.name}`);
                 resolve(img);
             };
             img.onerror = () => {
                 clearTimeout(timeout);
-                console.log(`Gallery: Image element failed to load for ${imageData.name}`);
                 resolve(null);
             };
-            
-            console.log(`Gallery: Image src set to: ${img.src}`);
         });
     }
     
@@ -399,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const gallerySlider = document.getElementById('gallerySlider');
         gallerySlider.innerHTML = `
             <div style="display: flex; align-items: center; justify-content: center; height: 200px; color: #8b4513; font-family: Georgia, serif;">
-                <p>No gallery images found</p>
+                <p>Gallery images will appear here when added to /images/gallery/ folder</p>
             </div>
         `;
         
@@ -410,7 +396,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (galleryNext) galleryNext.style.display = 'none';
     }
     
-    // Gallery functionality
+    // Gallery functionality (same as before)
     function initializeGallery() {
         const gallerySlider = document.querySelector('.gallery-slider');
         const galleryPrev = document.getElementById('galleryPrev');
