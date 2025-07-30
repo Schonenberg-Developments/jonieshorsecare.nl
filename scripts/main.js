@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 // Function to load texts from JSON file
 async function loadTexts() {
     try {
-        const response = await fetch('/texts.json');
+        const response = await fetch('/texts.json'); // This should work if texts.json is in public/
         if (!response.ok) {
             throw new Error(`Failed to load texts.json: ${response.status}`);
         }

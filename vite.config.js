@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+import { resolve } from 'path'
 
 export default defineConfig({
   // Development server configuration
@@ -16,7 +17,12 @@ export default defineConfig({
     minify: 'terser',
     rollupOptions: {
       input: {
-        main: './index.html'
+        main: resolve(__dirname, 'index.html'),
+        pensionstal: resolve(__dirname, 'pensionstal.html'),
+        rijlessen: resolve(__dirname, 'rijlessen.html'),
+        'trauma-recovery': resolve(__dirname, 'trauma-recovery.html'),
+        'pivo-lessen': resolve(__dirname, 'pivo-lessen.html'),
+        'ter-dekking': resolve(__dirname, 'ter-dekking.html')
       },
       output: {
         manualChunks: undefined,
