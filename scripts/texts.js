@@ -1,4 +1,4 @@
-const texts = {
+export const texts = {
     hero: {
         title: "Paarden tot bloei laten komen",
         subtitle: "Technische expertise combineren met een natuurgerichte benadering van paardentraining",
@@ -96,7 +96,7 @@ const texts = {
 };
 
 // Function to load texts into the page
-function loadTexts() {
+export function loadTexts() {
     // Update page title
     document.title = texts.meta.title;
     
@@ -210,9 +210,4 @@ function updateServiceCard(serviceKey, serviceData) {
             }
         }
     });
-}
-
-// Export for use in other files
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = texts;
 }

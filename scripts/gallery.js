@@ -1,3 +1,5 @@
+import { texts } from './texts.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize gallery with skeleton boxes immediately
     initializeGallerySkeleton();

@@ -1,3 +1,5 @@
+import { texts, loadTexts } from './texts.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     // Load texts first
     loadTexts();
