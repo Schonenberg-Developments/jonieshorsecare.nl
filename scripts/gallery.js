@@ -1,4 +1,4 @@
-import { texts } from './texts.js';
+// Gallery functionality without texts import to avoid build issues
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize gallery with skeleton boxes immediately
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const imageList = Object.entries(modules).map(([path, module]) => ({
                     src: module.default || path,
                     name: path.split('/').pop(),
-                    alt: `${texts.gallery.imageAlt} - ${path.split('/').pop()}`
+                    alt: `Galerij foto - ${path.split('/').pop()}` // Hardcoded fallback
                 }));
                 
                 console.log(`Gallery: Found ${imageList.length} images via Vite import.meta.glob`);
@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const imageData = {
                         src: imagePath,
                         name: imageName,
-                        alt: `${texts.gallery.imageAlt} - ${imageName}`
+                        alt: `Galerij foto - ${imageName}` // Hardcoded fallback
                     };
                     
                     // Add more skeleton boxes if needed

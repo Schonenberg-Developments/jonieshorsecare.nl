@@ -1,0 +1,301 @@
+{
+  "hero": {
+    "title": "Paarden tot bloei laten komen",
+    "subtitle": "Technische expertise combineren met een natuurgerichte benadering van paardentraining",
+    "logoAlt": "Paarden tot bloei laten komen Logo",
+    "siteTitle": "Jonie's horse care"
+  },
+  "services": {
+    "title": "Onze Services",
+    "boarding": {
+      "title": "Pensionstal",
+      "description": "Veilige en comfortabele accommodatie voor je paard",
+      "buttonText": "Meer informatie"
+    },
+    "riding": {
+      "title": "Rij- en Grondwerklessen",
+      "description": "Persoonlijke rij-instructie voor alle niveaus - Zowel kinderen als volwassenen",
+      "buttonText": "Meer informatie"
+    },
+    "trauma": {
+      "title": "Training voor Traumaverwerking",
+      "description": "Paarden ondersteunen bij revalidatie van trauma's, herstel en voeding",
+      "buttonText": "Meer informatie"
+    },
+    "pivo": {
+      "title": "Pivo Lessen",
+      "description": "Moderne technologie voor betere rij-instructie en training analyse",
+      "buttonText": "Meer informatie"
+    },
+    "breeding": {
+      "title": "Ter Dekking",
+      "description": "Professionele dekdiensten met kwalitatieve hengsten",
+      "buttonText": "Meer informatie"
+    }
+  },
+  "gallery": {
+    "title": "Onze Paarden en Stallen",
+    "imageAlt": "Galerij foto"
+  },
+  "contact": {
+    "title": "Neem contact op",
+    "description": "Klaar om je paard te helpen bloeien? Neem contact met ons op voor meer informatie over onze diensten en om een consult in te plannen.",
+    "phone": {
+      "label": "Mobiel:",
+      "value": "06 40929498"
+    },
+    "email": {
+      "label": "Email:",
+      "value": "contact@jonieshorsecare.nl"
+    },
+    "address": {
+      "label": "Adres:",
+      "value": "straatnaam 123, 1234 AB Plaatsnaam"
+    }
+  },
+  "footer": {
+    "copyright": "© 2025 Schonenberg Developments. All rights reserved."
+  },
+  "meta": {
+    "title": "Paarden tot bloei laten komen - Jonie's Horse Care"
+  },
+  "pages": {
+    "pensionstal": {
+      "title": "Pensionstal",
+      "subtitle": "Veilige en comfortabele accommodatie voor je paard met persoonlijke zorg",
+      "intro": "Bij Jonie's Horse Care bieden we verschillende pensiondiensten aan, van volledige stalling tot 24/7 buitenverblijf. Elk paard krijgt persoonlijke aandacht en zorgvuldige verzorging in een rustige, natuurlijke omgeving.",
+      "serviceOptions": {
+        "volledig": {
+          "title": "Volledige Stalling",
+          "items": [
+            "Dagelijkse boxverzorging",
+            "Kwaliteitsvoer aangepast op het paard",
+            "Dagelijkse controle en zorg",
+            "Toegang tot paddocks",
+            "Professioneel personeel",
+            "Flexibele voer- en weideregeling"
+          ]
+        },
+        "buiten": {
+          "title": "24/7 Buitenverblijf",
+          "items": [
+            "Natuurlijke leefomgeving",
+            "Sociale interactie met andere paarden",
+            "Weersbestendige schuilplaatsen",
+            "Dagelijkse controle",
+            "Grote paddocks en weiden",
+            "Natuurlijk gedrag stimuleren"
+          ]
+        },
+        "halfPension": {
+          "title": "Half Pension",
+          "items": [
+            "Gedeelde verantwoordelijkheid",
+            "Flexibele arrangementen",
+            "Kostenbesparing",
+            "Persoonlijke begeleiding",
+            "Aangepaste verzorgingsschema's",
+            "Samenwerking met eigenaar"
+          ]
+        }
+      },
+      "cta": {
+        "title": "Interesse in onze pensiondiensten?",
+        "description": "Neem contact met ons op voor een persoonlijk gesprek over de beste optie voor uw paard. We bespreken graag uw wensen en de behoeften van uw paard.",
+        "buttonText": "Contact opnemen"
+      }
+    },
+    "rijlessen": {
+      "title": "Rij- en Grondwerklessen",
+      "subtitle": "Persoonlijke instructie voor alle niveaus - Van beginners tot gevorderde ruiters",
+      "intro": "Van beginners tot gevorderde ruiters, wij bieden persoonlijke lessen in rijden, grondwerk en natuurlijk horsemanship. Ook zadelmak maken en begeleiding is mogelijk. Alle lessen worden aangepast aan het niveau en de doelen van ruiter en paard.",
+      "serviceOptions": {
+        "rijlessen": {
+          "title": "Rijlessen",
+          "items": [
+            "Beginners tot dressuur M niveau",
+            "Persoonlijke coaching",
+            "Verschillende disciplines",
+            "Aangepaste lesmethoden",
+            "Focus op zitscholing",
+            "Theorie en praktijk gecombineerd"
+          ]
+        },
+        "grondwerk": {
+          "title": "Grondwerk & Natural Horsemanship",
+          "items": [
+            "Vertrouwen opbouwen",
+            "Communicatie verbeteren",
+            "Respect en samenwerking",
+            "Problematisch gedrag aanpakken",
+            "Natuurlijke trainingsmethoden",
+            "Paardvriendelijke benadering"
+          ]
+        },
+        "zadelmak": {
+          "title": "Zadelmak maken & Begeleiding",
+          "items": [
+            "Jonge paarden starten",
+            "Stapsgewijze benadering",
+            "Op locatie mogelijk",
+            "Tijdelijke stalling beschikbaar",
+            "Hertraining probleem paarden",
+            "Begeleiding eigenaren"
+          ]
+        }
+      },
+      "cta": {
+        "title": "Klaar om te beginnen?",
+        "description": "Boek een proefles of neem contact op voor meer informatie over onze lesprogramma's. We bespreken graag uw wensen en stellen een passend lesplan samen.",
+        "buttonText": "Proefles boeken"
+      }
+    },
+    "traumaRecovery": {
+      "title": "Training voor Traumaverwerking",
+      "subtitle": "Gespecialiseerde zorg voor paarden die traumatische ervaringen hebben gehad",
+      "intro": "Gespecialiseerde zorg voor paarden die traumatische ervaringen hebben gehad. Met geduldige, traumabewuste methoden helpen we paarden weer vertrouwen op te bouwen en een positieve relatie met mensen te ontwikkelen.",
+      "serviceOptions": {
+        "traumaTraining": {
+          "title": "Traumabewuste Training",
+          "items": [
+            "Respectvolle, geduldige benadering",
+            "Stress-vrije omgeving",
+            "Individueel aangepaste methoden",
+            "Tempo van het paard volgen",
+            "Positieve bekrachtiging",
+            "Vertrouwen langzaam opbouwen"
+          ]
+        },
+        "hertraining": {
+          "title": "Hertraining Project Paarden",
+          "items": [
+            "Van grond af opbouwen",
+            "Vertrouwen herstellen",
+            "Positieve ervaringen creëren",
+            "Langetermijn begeleiding",
+            "Geduld en consistentie",
+            "Resultaat-gerichte aanpak"
+          ]
+        },
+        "holistisch": {
+          "title": "Holistische Ondersteuning",
+          "items": [
+            "Voedingsschema's",
+            "Samenwerking met dierenartsen",
+            "Stressvermindering technieken",
+            "Omgevingsaanpassingen",
+            "Eigenaar coaching",
+            "Follow-up begeleiding"
+          ]
+        }
+      },
+      "cta": {
+        "title": "Hulp nodig voor uw paard?",
+        "description": "Iedere situatie is uniek. Neem contact op voor een vrijblijvend gesprek over de mogelijkheden. We bespreken graag de geschiedenis van uw paard en stellen een passend behandelplan samen.",
+        "buttonText": "Adviesgesprek aanvragen"
+      }
+    },
+    "pivoLessen": {
+      "title": "Pivo Lessen",
+      "subtitle": "Moderne technologie voor betere rij-instructie en training analyse",
+      "intro": "Met behulp van de Pivo camera-technologie kunnen we uw rijlessen naar een hoger niveau tillen. Deze slimme camera volgt automatisch uw bewegingen en biedt waardevolle inzichten in uw rijvaardigheid en de prestaties van uw paard.",
+      "techHighlight": {
+        "title": "Wat is Pivo?",
+        "description": "Pivo is een intelligente camera die automatisch paard en ruiter volgt tijdens de training. De opnames bieden directe feedback en maken gedetailleerde analyse mogelijk van rijdhouding, paardenbewegingen en de algehele harmonie tussen paard en ruiter."
+      },
+      "serviceOptions": {
+        "videoAnalyse": {
+          "title": "Video Analyse Lessen",
+          "items": [
+            "Automatische opname tijdens rijles",
+            "Directe feedback na de les",
+            "Gedetailleerde bewegingsanalyse",
+            "Vergelijking met vorige lessen",
+            "Persoonlijke verbeterpunten",
+            "Opnames om mee naar huis te nemen"
+          ]
+        },
+        "technischeAnalyse": {
+          "title": "Technische Analyse",
+          "items": [
+            "Rijhouding en zitscholing",
+            "Paardenbewegingen analyseren",
+            "Timing en coördinatie",
+            "Hulpgebruik optimaliseren",
+            "Balans en ritme verbeteren",
+            "Voortgang objectief meten"
+          ]
+        },
+        "thuistraining": {
+          "title": "Thuistraining Ondersteuning",
+          "items": [
+            "Lessen op eigen locatie",
+            "Video-instructie op afstand",
+            "Beelden delen voor feedback",
+            "Trainingsschema's op maat",
+            "Continue begeleiding",
+            "Flexibele lessenmogelijkheden"
+          ]
+        }
+      },
+      "cta": {
+        "title": "Nieuwsgierig naar Pivo lessen?",
+        "description": "Ervaar zelf hoe moderne technologie uw rijvaardigheid kan verbeteren. Boek een proefles met Pivo en ontdek de voordelen van video-analyse in uw training.",
+        "buttonText": "Pivo proefles boeken"
+      }
+    },
+    "terDekking": {
+      "title": "Ter Dekking",
+      "subtitle": "Professionele dekdiensten met kwalitatieve hengsten",
+      "intro": "Professionele dekdiensten met ervaren begeleiding en kwalitatieve hengsten. Wij bieden een veilige en professionele omgeving voor het dekken van uw merrie, met uitstekende zorg en veterinaire begeleiding.",
+      "breedingHighlight": {
+        "title": "Wat is \"Ter Dekking\"?",
+        "description": "[Placeholder - Uitleg over dekdiensten, het fokken van paarden, wat eigenaren kunnen verwachten, en waarom dit een specialistische service is die professionele begeleiding vereist.]"
+      },
+      "serviceOptions": {
+        "hengsten": {
+          "title": "Hengsten Beschikbaar",
+          "items": [
+            "[Placeholder - Lijst van beschikbare hengsten]",
+            "[Placeholder - Rasspecificaties en kwaliteiten]",
+            "[Placeholder - Prestaties en afstamming]",
+            "[Placeholder - Gezondheidsstatussen]",
+            "[Placeholder - Fokwaarden en certificering]",
+            "[Placeholder - Dekgeld informatie]"
+          ]
+        },
+        "procedures": {
+          "title": "Procedures en Begeleiding",
+          "items": [
+            "[Placeholder - Voorbereiding van de merrie]",
+            "[Placeholder - Veterinaire controles]",
+            "[Placeholder - Dekproces begeleiding]",
+            "[Placeholder - Follow-up en nazorg]",
+            "[Placeholder - Administratieve afhandeling]",
+            "[Placeholder - Garanties en voorwaarden]"
+          ]
+        },
+        "faciliteiten": {
+          "title": "Faciliteiten en Zorg",
+          "items": [
+            "[Placeholder - Veilige dekfaciliteiten]",
+            "[Placeholder - Professionele begeleiding]",
+            "[Placeholder - Quarantaine mogelijkheden]",
+            "[Placeholder - Tijdelijke stalling voor merries]",
+            "[Placeholder - Samenwerking met dierenartsen]",
+            "[Placeholder - Ervaren personeel]"
+          ]
+        }
+      },
+      "placeholderContent": {
+        "title": "Content nog toe te voegen",
+        "description": "De client kan hier specifieke informatie toevoegen over hun hengsten, dekprocedures, tarieven, voorwaarden, en alle andere details die relevant zijn voor fokkers die gebruik willen maken van hun dekdiensten."
+      },
+      "cta": {
+        "title": "Interesse in onze dekdiensten?",
+        "description": "Neem contact met ons op voor meer informatie over beschikbare hengsten, procedures, tarieven en planning. We bespreken graag uw fokdoelen en wensen.",
+        "buttonText": "Informatie aanvragen"
+      }
+    }
+  }
+}
