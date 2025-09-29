@@ -1,12 +1,12 @@
-name: Deploy Vite Static Site
+name: Deploy to Production
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch: # Allows manual triggering
+  workflow_dispatch:
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     
     steps:
@@ -18,18 +18,23 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        
+    
     - name: Install dependencies
-      run: |
-        # Remove existing lock file and node_modules to ensure clean install
-        rm -f package-lock.json
-        rm -rf node_modules
-        npm install
+      run: npm ci
       
-    - name: Build production site
+    - name: Build project
       run: npm run build
       
-    - name: Prepare deployment directory
+    - name: Verify build output
+      run: |
+        echo "Checking dist directory contents..."
+        ls -la dist/
+        echo "Checking for index.html..."
+        test -f dist/index.html && echo "✓ index.html exists" || echo "✗ index.html missing"
+        echo "Checking for assets..."
+        test -d dist/assets && echo "✓ assets directory exists" || echo "✗ assets directory missing"
+    
+    - name: Prepare deployment directory on server
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.HOST }}
@@ -37,24 +42,27 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.PORT }}
         script: |
-          # Ensure the deployment directory structure exists
-          mkdir -p /home/deploy/static-sites/jonieshorsecare.nl
-          chmod -R 755 /home/deploy/static-sites/jonieshorsecare.nl
-          echo "Directory created and permissions set"
-          ls -la /home/deploy/static-sites/jonieshorsecare.nl/
+          # Create backup of current deployment
+          if [ -d /home/deploy/static-sites/jonieshorsecare.nl ]; then
+            sudo cp -r /home/deploy/static-sites/jonieshorsecare.nl /home/deploy/static-sites/jonieshorsecare.nl.backup
+          fi
           
-    - name: Deploy via rsync
+          # Ensure directory exists
+          sudo mkdir -p /home/deploy/static-sites/jonieshorsecare.nl
+          sudo chown -R deploy:deploy /home/deploy/static-sites/jonieshorsecare.nl
+    
+    - name: Deploy built files via rsync
       uses: burnett01/rsync-deployments@6.0.0
       with:
-        switches: -avzr --delete --exclude='.git' --exclude='node_modules' --exclude='.github' --exclude='src' --exclude='*.md' --exclude='package.json' --exclude='package-lock.json' --exclude='vite.config.js'
-        path: ./dist/
+        switches: -avzr --delete --exclude='.git' --exclude='node_modules' --exclude='.github'
+        path: dist/
         remote_path: /home/deploy/static-sites/jonieshorsecare.nl/
         remote_host: ${{ secrets.HOST }}
         remote_user: ${{ secrets.USERNAME }}
         remote_key: ${{ secrets.SSH_KEY }}
         remote_port: ${{ secrets.PORT }}
         
-    - name: Set proper permissions
+    - name: Set proper permissions and verify deployment
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.HOST }}
@@ -62,43 +70,16 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.PORT }}
         script: |
-          # Set proper ownership and permissions for web files
-          chown -R deploy:www-data /home/deploy/static-sites/jonieshorsecare.nl/ || echo "chown failed, but continuing"
-          find /home/deploy/static-sites/jonieshorsecare.nl/ -type d -exec chmod 755 {} \; || echo "chmod dirs failed, but continuing"
-          find /home/deploy/static-sites/jonieshorsecare.nl/ -type f -exec chmod 644 {} \; || echo "chmod files failed, but continuing"
-          echo "Permissions set (with possible warnings above)"
-          ls -la /home/deploy/static-sites/jonieshorsecare.nl/
+          # Set proper ownership and permissions
+          sudo chown -R www-data:www-data /var/www/jonieshorsecare.nl/
+          sudo find /var/www/jonieshorsecare.nl/ -type d -exec chmod 755 {} \;
+          sudo find /var/www/jonieshorsecare.nl/ -type f -exec chmod 644 {} \;
           
-    - name: Verify deployment
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
-        port: ${{ secrets.PORT }}
-        script: |
-          echo "=== Deployment Verification ==="
-          echo "Files in deployment directory:"
-          ls -la /home/deploy/static-sites/jonieshorsecare.nl/
-          echo "Checking if index.html exists:"
-          if [ -f /home/deploy/static-sites/jonieshorsecare.nl/index.html ]; then
-            echo "✅ index.html found"
-            echo "File size: $(du -h /home/deploy/static-sites/jonieshorsecare.nl/index.html)"
-          else
-            echo "❌ index.html not found"
-            exit 1
-          fi
-          echo "Checking if texts.json exists:"
-          if [ -f /home/deploy/static-sites/jonieshorsecare.nl/texts.json ]; then
-            echo "✅ texts.json found"
-            echo "File size: $(du -h /home/deploy/static-sites/jonieshorsecare.nl/texts.json)"
-          else
-            echo "❌ texts.json not found"
-          fi
-          echo "Checking assets directory:"
-          if [ -d /home/deploy/static-sites/jonieshorsecare.nl/assets ]; then
-            echo "✅ assets directory found"
-            echo "Assets: $(ls -1 /home/deploy/static-sites/jonieshorsecare.nl/assets/ | wc -l) files"
-          else
-            echo "⚠️ assets directory not found"
-          fi
+          # Verify critical files exist
+          echo "Verifying deployment..."
+          test -f /var/www/jonieshorsecare.nl/index.html && echo "✓ index.html deployed" || echo "✗ index.html missing!"
+          test -d /var/www/jonieshorsecare.nl/assets && echo "✓ assets directory deployed" || echo "✗ assets directory missing!"
+          
+          # Show directory structure
+          echo "Deployment structure:"
+          ls -lah /var/www/jonieshorsecare.nl/ | head -20
