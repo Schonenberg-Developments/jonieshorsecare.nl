@@ -119,14 +119,15 @@ function applyTextsToPage() {
     if (contactTitle && textsData.contact.title) contactTitle.textContent = textsData.contact.title;
     if (contactDescription && textsData.contact.description) contactDescription.textContent = textsData.contact.description;
     
-    // Update contact info with clickable links
+    // Update contact info with clickable links and international phone format
     const contactItems = document.querySelectorAll('.contact-item');
     
     if (contactItems.length >= 2) {
-        // Phone number - make it clickable
+        // Phone number - make it clickable with international format
         if (textsData.contact.phone) {
             const phoneNumber = textsData.contact.phone.value.replace(/\s/g, ''); // Remove spaces for tel: link
-            contactItems[0].innerHTML = `<strong>${textsData.contact.phone.label}</strong> <a href="tel:${phoneNumber}" class="contact-link">${textsData.contact.phone.value}</a>`;
+            const internationalPhone = '+31' + phoneNumber.substring(1); // Convert 06... to +316...
+            contactItems[0].innerHTML = `<strong>${textsData.contact.phone.label}</strong> <a href="tel:${internationalPhone}" class="contact-link">${textsData.contact.phone.value}</a>`;
         }
         
         // Email - obfuscated and clickable

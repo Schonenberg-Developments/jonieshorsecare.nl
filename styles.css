@@ -66,8 +66,8 @@ body {
 }
 
 .nav-logo-svg {
-    width: 32px;
-    height: 40px;
+    width: 36px;
+    height: 44px;
     display: block;
     flex-shrink: 0;
     margin-right: 8px;
@@ -219,7 +219,7 @@ body {
 }
 
 .service-content {
-    padding: 80px 0;
+    padding: 80px 20px;
     background: #ffffff;
 }
 
@@ -1082,6 +1082,10 @@ footer {
         padding: 30px 20px;
     }
     
+    .service-content {
+        padding: 60px 15px;
+    }
+    
     /* Modal Mobile */
     .modal__container {
         max-width: 95vw;
@@ -1107,5 +1111,17 @@ footer {
     .service-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 25px;
+    }
+}
+
+/* ==================== DESKTOP OPTIMIZATIONS ==================== */
+@media (min-width: 769px) {
+    .nav-logo-svg {
+        width: 45px;
+        height: 55px;
+    }
+    
+    .nav-logo span {
+        font-size: 1.6rem;
     }
 }

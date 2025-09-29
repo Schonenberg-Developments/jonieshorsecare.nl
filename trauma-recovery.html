@@ -59,10 +59,23 @@
         </section>
     </main>
 
+    <!-- Lightbox Modal - ADD THIS -->
+    <div id="lightbox" class="lightbox">
+        <div class="lightbox-content">
+            <span class="lightbox-close">&times;</span>
+            <img class="lightbox-image" src="" alt="">
+            <div class="lightbox-nav">
+                <button class="lightbox-prev">&#10094;</button>
+                <button class="lightbox-next">&#10095;</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer will be inserted by components.js -->
 
     <!-- Load components first, then page-specific scripts -->
     <script type="module" src="/scripts/components.js"></script>
     <script type="module" src="/scripts/main.js"></script>
+    <script type="module" src="/scripts/service-page-lightbox.js"></script>
 </body>
 </html>
