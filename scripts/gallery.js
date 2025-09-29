@@ -1,7 +1,6 @@
-// Optimized Gallery functionality with better error handling and loading
+// Clean, optimized Gallery functionality - loads images from gallery-images.json
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize gallery immediately
     initializeGallery();
 });
 
@@ -10,27 +9,26 @@ async function initializeGallery() {
     const gallerySlider = document.getElementById('gallerySlider');
     
     if (!gallerySlider) {
-        return;
+        return; // Not on a page with a gallery
     }
     
-    // Show loading state immediately
+    // Show loading state
     showLoadingState();
     
-    // Start loading images with timeout protection
-    const loadPromise = loadAllGalleryImages();
-    const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Gallery loading timeout')), 10000); // 10 second timeout
-    });
-    
     try {
-        await Promise.race([loadPromise, timeoutPromise]);
+        // Load images with 10 second timeout
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Gallery loading timeout')), 10000);
+        });
+        
+        await Promise.race([loadGalleryImages(), timeoutPromise]);
     } catch (error) {
-        console.error('Gallery: Loading failed or timed out:', error);
+        console.error('Gallery: Loading failed:', error);
         showErrorState();
     }
 }
 
-// Show initial loading state
+// Show loading skeleton
 function showLoadingState() {
     const gallerySlider = document.getElementById('gallerySlider');
     
@@ -39,23 +37,23 @@ function showLoadingState() {
         addLoadingStyles();
     }
     
-    // Show navigation buttons immediately
+    // Show navigation buttons
     const galleryPrev = document.getElementById('galleryPrev');
     const galleryNext = document.getElementById('galleryNext');
     if (galleryPrev) galleryPrev.style.display = 'block';
     if (galleryNext) galleryNext.style.display = 'block';
     
-    // Create skeleton boxes
+    // Create 6 skeleton boxes
     gallerySlider.innerHTML = '';
     for (let i = 0; i < 6; i++) {
-        const skeletonBox = document.createElement('div');
-        skeletonBox.className = 'gallery-skeleton';
-        skeletonBox.setAttribute('data-skeleton-index', i);
-        gallerySlider.appendChild(skeletonBox);
+        const skeleton = document.createElement('div');
+        skeleton.className = 'gallery-skeleton';
+        skeleton.setAttribute('data-skeleton-index', i);
+        gallerySlider.appendChild(skeleton);
     }
 }
 
-// Add loading styles to document
+// Add loading animation styles
 function addLoadingStyles() {
     const style = document.createElement('style');
     style.id = 'gallery-loading-styles';
@@ -122,123 +120,54 @@ function addLoadingStyles() {
     document.head.appendChild(style);
 }
 
-// Load all gallery images with multiple fallback strategies
-async function loadAllGalleryImages() {
-    let loadedImages = [];
-    
-    // Strategy 1: Try Vite import.meta.glob (for production builds)
+// Load images from the gallery list
+async function loadGalleryImages() {
     try {
-        if (typeof import.meta !== 'undefined' && import.meta.glob) {
-            loadedImages = await loadImagesFromVite();
-            if (loadedImages.length > 0) {
-                await displayImages(loadedImages);
-                return;
+        // Fetch the gallery images list
+        const response = await fetch('/gallery-images.json');
+        if (!response.ok) {
+            throw new Error('Could not load gallery-images.json');
+        }
+        
+        const data = await response.json();
+        const imageNames = data.images || [];
+        
+        if (imageNames.length === 0) {
+            throw new Error('No images in gallery list');
+        }
+        
+        // Load each image
+        const basePath = '/images/gallery/';
+        const loadedImages = [];
+        
+        for (const imageName of imageNames) {
+            const imagePath = basePath + imageName;
+            
+            // Validate image exists and loads correctly
+            if (await validateImage(imagePath, 2000)) {
+                loadedImages.push({
+                    src: imagePath,
+                    name: imageName,
+                    alt: `Galerij foto - ${imageName}`
+                });
             }
         }
-    } catch (error) {
-        // Continue to next strategy
-    }
-    
-    // Strategy 2: Try common image patterns with faster loading
-    loadedImages = await loadImagesFromPatterns();
-    
-    if (loadedImages.length > 0) {
-        await displayImages(loadedImages);
-    } else {
-        throw new Error('No images found');
-    }
-}
-
-// Load images using Vite's import.meta.glob
-async function loadImagesFromVite() {
-    const modules = import.meta.glob('/images/gallery/*.{png,jpg,jpeg,gif,webp}', { eager: true });
-    
-    if (Object.keys(modules).length === 0) {
-        return [];
-    }
-    
-    const imagePromises = Object.entries(modules).map(async ([path, module]) => {
-        const src = module.default || path;
-        const name = path.split('/').pop();
         
-        // Quick validation
-        if (await validateImage(src, 2000)) { // 2 second timeout per image
-            return {
-                src,
-                name,
-                alt: `Galerij foto - ${name}`
-            };
+        if (loadedImages.length === 0) {
+            throw new Error('No images could be loaded');
         }
-        return null;
-    });
-    
-    const results = await Promise.all(imagePromises);
-    return results.filter(img => img !== null);
+        
+        // Display the images
+        await displayImages(loadedImages);
+        
+    } catch (error) {
+        console.error('Error loading gallery:', error);
+        throw error;
+    }
 }
 
-// Load images using pattern matching with optimized approach
-async function loadImagesFromPatterns() {
-    const basePaths = [
-        './images/gallery/',
-        '/images/gallery/',
-        'images/gallery/'
-    ];
-    
-    // More focused set of common patterns
-    const imagePatterns = [
-        // Numbered patterns (most common)
-        ...Array.from({length: 20}, (_, i) => `${i + 1}.jpg`),
-        ...Array.from({length: 10}, (_, i) => `${i + 1}.jpeg`),
-        ...Array.from({length: 10}, (_, i) => `${i + 1}.png`),
-        ...Array.from({length: 5}, (_, i) => `${i + 1}.webp`),
-        // Common naming patterns
-        'horse1.jpg', 'horse2.jpg', 'horse3.jpg',
-        'stable1.jpg', 'stable2.jpg', 'stable3.jpg',
-        'gallery1.jpg', 'gallery2.jpg', 'gallery3.jpg'
-    ];
-    
-    const loadedImages = [];
-    const maxImages = 15; // Limit to prevent excessive loading
-    
-    // Use Promise.allSettled for parallel loading with individual timeouts
-    const imageChecks = [];
-    
-    for (const basePath of basePaths) {
-        for (const pattern of imagePatterns) {
-            if (loadedImages.length >= maxImages) break;
-            
-            const imagePath = basePath + pattern;
-            imageChecks.push(
-                validateImage(imagePath, 1500).then(isValid => ({
-                    isValid,
-                    path: imagePath,
-                    name: pattern
-                }))
-            );
-        }
-        if (loadedImages.length >= maxImages) break;
-    }
-    
-    // Process results as they come in
-    const results = await Promise.allSettled(imageChecks);
-    
-    for (const result of results) {
-        if (result.status === 'fulfilled' && result.value.isValid) {
-            loadedImages.push({
-                src: result.value.path,
-                name: result.value.name,
-                alt: `Galerij foto - ${result.value.name}`
-            });
-            
-            if (loadedImages.length >= maxImages) break;
-        }
-    }
-    
-    return loadedImages;
-}
-
-// Faster image validation with timeout
-function validateImage(src, timeout = 1500) {
+// Validate that an image exists and can be loaded
+function validateImage(src, timeout = 2000) {
     return new Promise((resolve) => {
         const img = new Image();
         let resolved = false;
@@ -270,15 +199,15 @@ function validateImage(src, timeout = 1500) {
     });
 }
 
-// Display images with progressive loading
+// Display images progressively
 async function displayImages(imageList) {
     const gallerySlider = document.getElementById('gallerySlider');
     
-    // Replace skeletons progressively
+    // Replace skeletons with actual images
     for (let i = 0; i < imageList.length; i++) {
         await replaceSkeletonWithImage(i, imageList[i]);
         
-        // Small delay for smooth visual effect
+        // Small delay for smooth visual effect (only for first few)
         if (i < 5) {
             await new Promise(resolve => setTimeout(resolve, 100));
         }
@@ -333,7 +262,7 @@ async function replaceSkeletonWithImage(index, imageData) {
     }, 50);
 }
 
-// Show error state when loading fails
+// Show error state
 function showErrorState() {
     const gallerySlider = document.getElementById('gallerySlider');
     
@@ -366,8 +295,8 @@ function showErrorState() {
 function createInfiniteLoopAndInitialize(originalImages) {
     const gallerySlider = document.getElementById('gallerySlider');
     
-    // Create infinite loop copies
-    const repetitions = 8; // Reduced from 10 for better performance
+    // Create infinite loop by repeating images
+    const repetitions = 8;
     const allImages = [];
     
     for (let rep = 0; rep < repetitions; rep++) {
@@ -401,7 +330,7 @@ function createInfiniteLoopAndInitialize(originalImages) {
     initializeGalleryControls(originalImages.length);
 }
 
-// Initialize gallery navigation and lightbox controls
+// Initialize gallery navigation and lightbox
 function initializeGalleryControls(originalImageCount) {
     const gallerySlider = document.querySelector('.gallery-slider');
     const galleryPrev = document.getElementById('galleryPrev');
@@ -421,7 +350,7 @@ function initializeGalleryControls(originalImageCount) {
     const totalImages = galleryItems.length;
     
     // Start in the middle for smooth infinite scrolling
-    currentIndex = Math.floor(originalImageCount * 4); // Start at 4th repetition
+    currentIndex = Math.floor(originalImageCount * 4);
     
     function updateGallery(instant = false) {
         const translateX = -currentIndex * itemWidth;
@@ -438,7 +367,7 @@ function initializeGalleryControls(originalImageCount) {
         }
     }
     
-    // Navigation event listeners
+    // Navigation - Previous
     if (galleryPrev) {
         galleryPrev.addEventListener('click', function() {
             currentIndex--;
@@ -452,6 +381,7 @@ function initializeGalleryControls(originalImageCount) {
         });
     }
     
+    // Navigation - Next
     if (galleryNext) {
         galleryNext.addEventListener('click', function() {
             currentIndex++;
@@ -465,10 +395,10 @@ function initializeGalleryControls(originalImageCount) {
         });
     }
     
-    // Lightbox functionality
+    // Initialize lightbox
     initializeLightbox(galleryImages);
     
-    // Initialize gallery position
+    // Set initial position
     updateGallery(true);
 }
 
@@ -503,15 +433,17 @@ function initializeLightbox(galleryImages) {
         }
     }
     
-    // Event listeners
+    // Click on gallery images to open lightbox
     galleryImages.forEach((image, index) => {
         image.addEventListener('click', () => openLightbox(index));
     });
     
+    // Close button
     if (lightboxClose) {
         lightboxClose.addEventListener('click', closeLightbox);
     }
     
+    // Previous image in lightbox
     if (lightboxPrev) {
         lightboxPrev.addEventListener('click', function() {
             const newIndex = currentLightboxIndex > 0 ? currentLightboxIndex - 1 : galleryImages.length - 1;
@@ -519,6 +451,7 @@ function initializeLightbox(galleryImages) {
         });
     }
     
+    // Next image in lightbox
     if (lightboxNext) {
         lightboxNext.addEventListener('click', function() {
             const newIndex = currentLightboxIndex < galleryImages.length - 1 ? currentLightboxIndex + 1 : 0;
@@ -526,7 +459,7 @@ function initializeLightbox(galleryImages) {
         });
     }
     
-    // Close lightbox when clicking outside
+    // Close lightbox when clicking outside image
     if (lightbox) {
         lightbox.addEventListener('click', function(e) {
             if (e.target === lightbox) {
