@@ -4,16 +4,27 @@ let textsLoaded = false;
 // Make it accessible globally for debugging
 window.textsData = null;
 
-document.addEventListener('DOMContentLoaded', async function() {
-    // Show loading state
-    document.body.classList.add('loading');
-    
-    // Load texts first and wait for it
+// Wait for everything to be ready before showing page
+window.addEventListener('load', async function() {
+    // Page resources (CSS, images) are loaded, now load texts
     await loadTexts();
     
-    // Remove loading state
-    document.body.classList.remove('loading');
+    // Remove preloader
+    const preloader = document.getElementById('preloader');
+    if (preloader) {
+        preloader.style.opacity = '0';
+        setTimeout(() => {
+            preloader.style.display = 'none';
+        }, 300);
+    }
+    
     textsLoaded = true;
+    
+    // Now initialize everything else
+    initializePageFeatures();
+});
+
+function initializePageFeatures() {
     
     // Hero image loading
     const heroImage = document.querySelector('.hero-image');
@@ -64,36 +75,39 @@ document.addEventListener('DOMContentLoaded', async function() {
         card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(card);
     });
-});
+}
 
 // Function to load texts from JSON file
 async function loadTexts() {
-    try {
-        const response = await fetch('/texts.json');
-        if (!response.ok) {
-            throw new Error(`Failed to load texts.json: ${response.status}`);
-        }
-        textsData = await response.json();
-        window.textsData = textsData; // Make it globally accessible
-        
-        // Apply texts to the page
-        applyTextsToPage();
-        
-    } catch (error) {
-        console.error('Error loading texts:', error);
-        // Retry once after a short delay
-        setTimeout(async () => {
-            try {
-                const response = await fetch('/texts.json');
-                if (response.ok) {
-                    textsData = await response.json();
-                    window.textsData = textsData;
-                    applyTextsToPage();
-                }
-            } catch (retryError) {
-                console.error('Retry failed:', retryError);
+    let retries = 0;
+    const maxRetries = 3;
+    
+    while (retries < maxRetries) {
+        try {
+            const response = await fetch('/texts.json');
+            if (!response.ok) {
+                throw new Error(`Failed to load texts.json: ${response.status}`);
             }
-        }, 500);
+            textsData = await response.json();
+            window.textsData = textsData; // Make it globally accessible
+            
+            // Apply texts to the page
+            applyTextsToPage();
+            return; // Success, exit function
+            
+        } catch (error) {
+            retries++;
+            console.error(`Error loading texts (attempt ${retries}/${maxRetries}):`, error);
+            
+            if (retries < maxRetries) {
+                // Wait before retrying (exponential backoff)
+                await new Promise(resolve => setTimeout(resolve, 300 * retries));
+            } else {
+                console.error('Failed to load texts after all retries');
+                // Apply whatever we have (might be empty)
+                applyTextsToPage();
+            }
+        }
     }
 }
 
