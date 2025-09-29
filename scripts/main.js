@@ -7,6 +7,52 @@ window.textsData = null;
 
 console.log('main.js loaded');
 
+// Check if CSS is loaded
+function isCSSLoaded() {
+    // Check if any stylesheets from our domain are loaded
+    const stylesheets = document.styleSheets;
+    for (let i = 0; i < stylesheets.length; i++) {
+        try {
+            // Try to access cssRules to verify it's loaded
+            if (stylesheets[i].cssRules || stylesheets[i].rules) {
+                // Check if it has our navbar styles as a marker
+                const rules = stylesheets[i].cssRules || stylesheets[i].rules;
+                for (let j = 0; j < rules.length; j++) {
+                    if (rules[j].selectorText && rules[j].selectorText.includes('.navbar')) {
+                        console.log('CSS loaded and verified');
+                        return true;
+                    }
+                }
+            }
+        } catch (e) {
+            // Cross-origin stylesheet, skip
+            continue;
+        }
+    }
+    console.warn('CSS not yet loaded');
+    return false;
+}
+
+// Wait for CSS to be loaded before removing preloader
+function waitForCSS(callback, maxAttempts = 50) {
+    let attempts = 0;
+    
+    const checkCSS = setInterval(() => {
+        attempts++;
+        console.log(`CSS check attempt ${attempts}/${maxAttempts}`);
+        
+        if (isCSSLoaded()) {
+            clearInterval(checkCSS);
+            console.log('CSS loaded successfully');
+            callback();
+        } else if (attempts >= maxAttempts) {
+            clearInterval(checkCSS);
+            console.error('CSS failed to load after maximum attempts');
+            callback(); // Show page anyway
+        }
+    }, 100); // Check every 100ms
+}
+
 // Fallback: Remove preloader after max 5 seconds no matter what
 setTimeout(() => {
     if (!preloaderRemoved) {
@@ -35,13 +81,16 @@ function removePreloader() {
 window.addEventListener('load', async function() {
     console.log('window load event fired');
     
-    // Page resources (CSS, images) are loaded, now load texts
-    await loadTexts();
-    
-    console.log('texts loaded, removing preloader');
-    
-    removePreloader();
-    textsLoaded = true;
+    // Wait for CSS to be properly loaded
+    waitForCSS(async () => {
+        // Page resources (CSS, images) are loaded, now load texts
+        await loadTexts();
+        
+        console.log('texts loaded, removing preloader');
+        
+        removePreloader();
+        textsLoaded = true;
+    });
 });
 
 // Also initialize features on DOMContentLoaded for faster interactivity
