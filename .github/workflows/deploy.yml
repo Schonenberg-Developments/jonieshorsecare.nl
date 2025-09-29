@@ -44,12 +44,14 @@ jobs:
         script: |
           # Create backup of current deployment
           if [ -d /home/deploy/static-sites/jonieshorsecare.nl ]; then
-            sudo cp -r /home/deploy/static-sites/jonieshorsecare.nl /home/deploy/static-sites/jonieshorsecare.nl.backup
+            cp -r /home/deploy/static-sites/jonieshorsecare.nl /home/deploy/static-sites/jonieshorsecare.nl.backup.$(date +%Y%m%d_%H%M%S)
           fi
           
-          # Ensure directory exists
-          sudo mkdir -p /home/deploy/static-sites/jonieshorsecare.nl
-          sudo chown -R deploy:deploy /home/deploy/static-sites/jonieshorsecare.nl
+          # Ensure directory exists (should already be owned by deploy user)
+          mkdir -p /home/deploy/static-sites/jonieshorsecare.nl
+          
+          # Clean old backups (keep last 3)
+          ls -t /home/deploy/static-sites/jonieshorsecare.nl.backup.* 2>/dev/null | tail -n +4 | xargs -r rm -rf
     
     - name: Deploy built files via rsync
       uses: burnett01/rsync-deployments@6.0.0
