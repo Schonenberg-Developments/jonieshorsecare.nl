@@ -1,11 +1,19 @@
 // Main JavaScript for general functionality
 let textsData = null;
+let textsLoaded = false;
 // Make it accessible globally for debugging
 window.textsData = null;
 
 document.addEventListener('DOMContentLoaded', async function() {
-    // Load texts first
+    // Show loading state
+    document.body.classList.add('loading');
+    
+    // Load texts first and wait for it
     await loadTexts();
+    
+    // Remove loading state
+    document.body.classList.remove('loading');
+    textsLoaded = true;
     
     // Hero image loading
     const heroImage = document.querySelector('.hero-image');
@@ -73,7 +81,19 @@ async function loadTexts() {
         
     } catch (error) {
         console.error('Error loading texts:', error);
-        // Fallback to default behavior if JSON fails to load
+        // Retry once after a short delay
+        setTimeout(async () => {
+            try {
+                const response = await fetch('/texts.json');
+                if (response.ok) {
+                    textsData = await response.json();
+                    window.textsData = textsData;
+                    applyTextsToPage();
+                }
+            } catch (retryError) {
+                console.error('Retry failed:', retryError);
+            }
+        }, 500);
     }
 }
 
