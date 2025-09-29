@@ -19,8 +19,10 @@ window.addEventListener('load', async function() {
     }
     
     textsLoaded = true;
-    
-    // Now initialize everything else
+});
+
+// Also initialize features on DOMContentLoaded for faster interactivity
+document.addEventListener('DOMContentLoaded', function() {
     initializePageFeatures();
 });
 
