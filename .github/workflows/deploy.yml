@@ -19,8 +19,12 @@ jobs:
         node-version: '18'
         cache: 'npm'
     
-    - name: Install dependencies
-      run: npm ci
+    - name: Clean install dependencies
+      run: |
+        rm -rf node_modules
+        rm -f package-lock.json
+        npm install
+        npm ci
       
     - name: Build project
       run: npm run build
@@ -43,22 +47,25 @@ jobs:
         port: ${{ secrets.PORT }}
         script: |
           # Create backup of current deployment
-          if [ -d /home/deploy/static-sites/jonieshorsecare.nl ]; then
-            cp -r /home/deploy/static-sites/jonieshorsecare.nl /home/deploy/static-sites/jonieshorsecare.nl.backup.$(date +%Y%m%d_%H%M%S)
+          if [ -d /var/www/jonieshorsecare.nl ]; then
+            sudo cp -r /var/www/jonieshorsecare.nl /var/www/jonieshorsecare.nl.backup.$(date +%Y%m%d_%H%M%S)
           fi
           
-          # Ensure directory exists (should already be owned by deploy user)
-          mkdir -p /home/deploy/static-sites/jonieshorsecare.nl
+          # Ensure directory exists
+          sudo mkdir -p /var/www/jonieshorsecare.nl
+          
+          # Temporarily set permissions for deployment
+          sudo chown -R $USER:$USER /var/www/jonieshorsecare.nl
           
           # Clean old backups (keep last 3)
-          ls -t /home/deploy/static-sites/jonieshorsecare.nl.backup.* 2>/dev/null | tail -n +4 | xargs -r rm -rf
+          sudo ls -t /var/www/jonieshorsecare.nl.backup.* 2>/dev/null | tail -n +4 | xargs -r sudo rm -rf
     
     - name: Deploy built files via rsync
       uses: burnett01/rsync-deployments@6.0.0
       with:
         switches: -avzr --delete --exclude='.git' --exclude='node_modules' --exclude='.github'
         path: dist/
-        remote_path: /home/deploy/static-sites/jonieshorsecare.nl/
+        remote_path: /var/www/jonieshorsecare.nl/
         remote_host: ${{ secrets.HOST }}
         remote_user: ${{ secrets.USERNAME }}
         remote_key: ${{ secrets.SSH_KEY }}
@@ -85,3 +92,7 @@ jobs:
           # Show directory structure
           echo "Deployment structure:"
           ls -lah /var/www/jonieshorsecare.nl/ | head -20
+          
+          # Test Nginx configuration
+          echo "Testing Nginx configuration..."
+          sudo nginx -t
