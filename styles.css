@@ -13,13 +13,17 @@ body {
     line-height: 1.6;
     color: #333333;
     background-color: #f5f2ed;
-    transition: opacity 0.3s ease;
 }
 
-/* Loading state - subtle fade while content loads */
-body.loading {
-    opacity: 0.7;
+/* Loading state - only hide main content while loading */
+body.loading .container,
+body.loading main,
+body.loading .services,
+body.loading .gallery,
+body.loading .contact {
+    opacity: 0.3;
     pointer-events: none;
+    transition: opacity 0.3s ease;
 }
 
 /* Use Alice for all headings */
