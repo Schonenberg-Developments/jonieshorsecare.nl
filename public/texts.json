@@ -200,26 +200,27 @@
         "description": "Pivo is een intelligente camera die automatisch paard en ruiter volgt tijdens de training. De opnames bieden directe feedback en maken gedetailleerde analyse mogelijk van rijdhouding, paardenbewegingen en de algehele harmonie tussen paard en ruiter."
       },
       "serviceOptions": {
-        "videoAnalyse": {
-          "title": "Video Analyse Lessen",
+        "voordelen": {
+          "title": "Voordelen",
           "items": [
-            "Automatische opname tijdens rijles",
-            "Directe feedback na de les",
-            "Gedetailleerde bewegingsanalyse",
+            "Automatische opname tijdens het rijden",
+            "Directe feedback tijdens of na de les",
             "Vergelijking met vorige lessen",
             "Persoonlijke verbeterpunten",
-            "Opnames om mee naar huis te nemen"
+            "Gedetailleerde bewegingsanalyse",
+            "Persoonlijk contact en op maat van de klant"
           ]
         },
         "technischeAnalyse": {
           "title": "Technische Analyse",
           "items": [
-            "Rijhouding en zitscholing",
-            "Paardenbewegingen analyseren",
+            "Rij- en zithouding",
             "Timing en coördinatie",
-            "Hulpgebruik optimaliseren",
+            "Hulpen optimaliseren",
             "Balans en ritme verbeteren",
-            "Voortgang objectief meten"
+            "Beelden delen voor feedback",
+            "Trainingsschema's op maat",
+            "Flexibele lessenmogelijkheden"
           ]
         },
         "thuistraining": {
@@ -243,53 +244,52 @@
     "terDekking": {
       "title": "Ter Dekking",
       "subtitle": "Professionele dekdiensten met kwalitatieve hengsten",
-      "intro": "Professionele dekdiensten met ervaren begeleiding en kwalitatieve hengsten. Wij bieden een veilige en professionele omgeving voor het dekken van uw merrie, met uitstekende zorg en veterinaire begeleiding.",
+      "intro": "Wij bieden professionele dekdiensten aan met twee prachtige hengsten. Beide hengsten dekken natuurlijk en staan bekend om hun rustige karakter en mooie beweging. Uw merrie is bij ons in goede handen met persoonlijke begeleiding en zorgvuldige aandacht.",
       "breedingHighlight": {
-        "title": "Wat is \"Ter Dekking\"?",
-        "description": "[Placeholder - Uitleg over dekdiensten, het fokken van paarden, wat eigenaren kunnen verwachten, en waarom dit een specialistische service is die professionele begeleiding vereist.]"
+        "title": "Natuurlijke Dekking met Persoonlijke Zorg",
+        "description": "Onze hengsten dekken op natuurlijke wijze in een veilige en rustige omgeving. We bieden tijdelijke stalling voor uw merrie en zorgen voor professionele begeleiding tijdens het gehele dekproces. Beide hengsten hebben een uitstekend karakter en veel respect voor de merries."
       },
       "serviceOptions": {
-        "hengsten": {
-          "title": "Hengsten Beschikbaar",
+        "mauro": {
+          "title": "Mauro van stal Epona",
           "items": [
-            "[Placeholder - Lijst van beschikbare hengsten]",
-            "[Placeholder - Rasspecificaties en kwaliteiten]",
-            "[Placeholder - Prestaties en afstamming]",
-            "[Placeholder - Gezondheidsstatussen]",
-            "[Placeholder - Fokwaarden en certificering]",
-            "[Placeholder - Dekgeld informatie]"
+            "Vader: Univers van de Morgendster",
+            "Moeder: Danja van de Morgendster",
+            "Moedersvader: Panda de Valk",
+            "8 jaar, Grullo, 74 cm, met aalstreep",
+            "Super lief en rustig karakter",
+            "Veel respect voor de merries",
+            "Dekwijze: Natuurlijk"
+          ]
+        },
+        "alex": {
+          "title": "Alex v't Zwaanen Heike",
+          "items": [
+            "Vader: Timber Ridges Color Broker",
+            "Moeder: Iris v't Zwaanen Heike",
+            "Moedersvader: Yesterboy of the Fairy Tale Ranch",
+            "4 jaar, NMPRS Grullo hengst, 90 cm",
+            "Luxe uitstraling met splash en blauw oogdeel",
+            "Erfelijke kans op bont (vader is bont)",
+            "Fairy Tale Ranch bloedlijn - mooie beweging",
+            "Dekwijze: Natuurlijk"
           ]
         },
         "procedures": {
           "title": "Procedures en Begeleiding",
           "items": [
-            "[Placeholder - Voorbereiding van de merrie]",
-            "[Placeholder - Veterinaire controles]",
-            "[Placeholder - Dekproces begeleiding]",
-            "[Placeholder - Follow-up en nazorg]",
-            "[Placeholder - Administratieve afhandeling]",
-            "[Placeholder - Garanties en voorwaarden]"
-          ]
-        },
-        "faciliteiten": {
-          "title": "Faciliteiten en Zorg",
-          "items": [
-            "[Placeholder - Veilige dekfaciliteiten]",
-            "[Placeholder - Professionele begeleiding]",
-            "[Placeholder - Quarantaine mogelijkheden]",
-            "[Placeholder - Tijdelijke stalling voor merries]",
-            "[Placeholder - Samenwerking met dierenartsen]",
-            "[Placeholder - Ervaren personeel]"
+            "Merrie kan 1 week of langer bij ons verblijven",
+            "Persoonlijke begeleiding tijdens dekking",
+            "Respectvolle en zorgzame omgang",
+            "Veilige stalling voor merries",
+            "Samenwerking met dierenartsen indien nodig",
+            "Ervaren en zorgzaam personeel"
           ]
         }
       },
-      "placeholderContent": {
-        "title": "Content nog toe te voegen",
-        "description": "De client kan hier specifieke informatie toevoegen over hun hengsten, dekprocedures, tarieven, voorwaarden, en alle andere details die relevant zijn voor fokkers die gebruik willen maken van hun dekdiensten."
-      },
       "cta": {
         "title": "Interesse in onze dekdiensten?",
-        "description": "Neem contact met ons op voor meer informatie over beschikbare hengsten, procedures, tarieven en planning. We bespreken graag uw fokdoelen en wensen.",
+        "description": "Neem contact met ons op voor meer informatie over beschikbaarheid, procedures en tarieven. We bespreken graag uw wensen en beantwoorden al uw vragen.",
         "buttonText": "Informatie aanvragen"
       }
     }

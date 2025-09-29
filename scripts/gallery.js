@@ -10,11 +10,8 @@ async function initializeGallery() {
     const gallerySlider = document.getElementById('gallerySlider');
     
     if (!gallerySlider) {
-        console.log('Gallery: No gallery container found');
         return;
     }
-    
-    console.log('Gallery: Starting initialization...');
     
     // Show loading state immediately
     showLoadingState();
@@ -56,8 +53,6 @@ function showLoadingState() {
         skeletonBox.setAttribute('data-skeleton-index', i);
         gallerySlider.appendChild(skeletonBox);
     }
-    
-    console.log('Gallery: Loading state displayed');
 }
 
 // Add loading styles to document
@@ -129,14 +124,11 @@ function addLoadingStyles() {
 
 // Load all gallery images with multiple fallback strategies
 async function loadAllGalleryImages() {
-    console.log('Gallery: Starting image loading process...');
-    
     let loadedImages = [];
     
     // Strategy 1: Try Vite import.meta.glob (for production builds)
     try {
         if (typeof import.meta !== 'undefined' && import.meta.glob) {
-            console.log('Gallery: Trying Vite import.meta.glob...');
             loadedImages = await loadImagesFromVite();
             if (loadedImages.length > 0) {
                 await displayImages(loadedImages);
@@ -144,11 +136,10 @@ async function loadAllGalleryImages() {
             }
         }
     } catch (error) {
-        console.log('Gallery: Vite method failed:', error.message);
+        // Continue to next strategy
     }
     
     // Strategy 2: Try common image patterns with faster loading
-    console.log('Gallery: Trying pattern-based loading...');
     loadedImages = await loadImagesFromPatterns();
     
     if (loadedImages.length > 0) {
@@ -281,8 +272,6 @@ function validateImage(src, timeout = 1500) {
 
 // Display images with progressive loading
 async function displayImages(imageList) {
-    console.log(`Gallery: Displaying ${imageList.length} images`);
-    
     const gallerySlider = document.getElementById('gallerySlider');
     
     // Replace skeletons progressively
@@ -371,8 +360,6 @@ function showErrorState() {
     const galleryNext = document.getElementById('galleryNext');
     if (galleryPrev) galleryPrev.style.display = 'none';
     if (galleryNext) galleryNext.style.display = 'none';
-    
-    console.log('Gallery: Error state displayed');
 }
 
 // Create infinite loop and initialize gallery controls
@@ -410,12 +397,8 @@ function createInfiniteLoopAndInitialize(originalImages) {
         gallerySlider.appendChild(galleryItem);
     });
     
-    console.log(`Gallery: Created infinite loop with ${allImages.length} total images`);
-    
     // Initialize gallery controls
     initializeGalleryControls(originalImages.length);
-    
-    console.log('Gallery: Fully initialized and ready');
 }
 
 // Initialize gallery navigation and lightbox controls

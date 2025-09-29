@@ -1,5 +1,7 @@
 // Main JavaScript for general functionality
 let textsData = null;
+// Make it accessible globally for debugging
+window.textsData = null;
 
 document.addEventListener('DOMContentLoaded', async function() {
     // Load texts first
@@ -59,11 +61,12 @@ document.addEventListener('DOMContentLoaded', async function() {
 // Function to load texts from JSON file
 async function loadTexts() {
     try {
-        const response = await fetch('/texts.json'); // This should work if texts.json is in public/
+        const response = await fetch('/texts.json');
         if (!response.ok) {
             throw new Error(`Failed to load texts.json: ${response.status}`);
         }
         textsData = await response.json();
+        window.textsData = textsData; // Make it globally accessible
         
         // Apply texts to the page
         applyTextsToPage();
@@ -232,14 +235,6 @@ function updateServicePageContent() {
             const breedingHighlightDesc = document.querySelector('.breeding-highlight p');
             if (breedingHighlightTitle) breedingHighlightTitle.textContent = pageData.breedingHighlight.title;
             if (breedingHighlightDesc) breedingHighlightDesc.textContent = pageData.breedingHighlight.description;
-        }
-        
-        // Update placeholder content (for ter dekking page)
-        if (pageData.placeholderContent) {
-            const placeholderTitle = document.querySelector('.placeholder-content h3');
-            const placeholderDesc = document.querySelector('.placeholder-content p');
-            if (placeholderTitle) placeholderTitle.textContent = pageData.placeholderContent.title;
-            if (placeholderDesc) placeholderDesc.textContent = pageData.placeholderContent.description;
         }
         
         // Update CTA section
