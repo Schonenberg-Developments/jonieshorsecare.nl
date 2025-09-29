@@ -6,6 +6,11 @@
     <title>Loading...</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/styles.css">
+
+    <!-- Preload critical images -->
+    <link rel="preload" as="image" href="/images/pages/pensionstal/stal1.jpg">
+    <link rel="preload" as="image" href="/images/pages/pensionstal/stal2.jpg">
+    <link rel="preload" as="image" href="/images/pages/pensionstal/stal3.jpg">
 </head>
 <body>
     <!-- Navigation will be inserted by components.js -->
@@ -77,5 +82,6 @@
     <script type="module" src="/scripts/components.js"></script>
     <script type="module" src="/scripts/main.js"></script>
     <script type="module" src="/scripts/service-page-lightbox.js"></script>
+    <script type="module" src="/scripts/image-loader.js"></script>
 </body>
 </html>
