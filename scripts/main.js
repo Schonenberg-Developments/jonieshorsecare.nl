@@ -1,28 +1,52 @@
 // Main JavaScript for general functionality
 let textsData = null;
 let textsLoaded = false;
+let preloaderRemoved = false;
 // Make it accessible globally for debugging
 window.textsData = null;
 
-// Wait for everything to be ready before showing page
-window.addEventListener('load', async function() {
-    // Page resources (CSS, images) are loaded, now load texts
-    await loadTexts();
+console.log('main.js loaded');
+
+// Fallback: Remove preloader after max 5 seconds no matter what
+setTimeout(() => {
+    if (!preloaderRemoved) {
+        console.warn('Preloader timeout - forcing removal');
+        removePreloader();
+    }
+}, 5000);
+
+function removePreloader() {
+    if (preloaderRemoved) return;
+    preloaderRemoved = true;
     
-    // Remove preloader
     const preloader = document.getElementById('preloader');
     if (preloader) {
         preloader.style.opacity = '0';
         setTimeout(() => {
             preloader.style.display = 'none';
+            console.log('preloader hidden');
         }, 300);
+    } else {
+        console.log('no preloader found');
     }
+}
+
+// Wait for everything to be ready before showing page
+window.addEventListener('load', async function() {
+    console.log('window load event fired');
     
+    // Page resources (CSS, images) are loaded, now load texts
+    await loadTexts();
+    
+    console.log('texts loaded, removing preloader');
+    
+    removePreloader();
     textsLoaded = true;
 });
 
 // Also initialize features on DOMContentLoaded for faster interactivity
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM content loaded, initializing features');
     initializePageFeatures();
 });
 
