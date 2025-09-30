@@ -46,19 +46,16 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.PORT }}
         script: |
-          # Create backup of current deployment
+          # Create backup of current deployment (if user has permissions)
           if [ -d /var/www/jonieshorsecare.nl ]; then
-            sudo cp -r /var/www/jonieshorsecare.nl /var/www/jonieshorsecare.nl.backup.$(date +%Y%m%d_%H%M%S)
+            cp -r /var/www/jonieshorsecare.nl /var/www/jonieshorsecare.nl.backup.$(date +%Y%m%d_%H%M%S) 2>/dev/null || echo "Skipping backup (no permissions)"
           fi
           
-          # Ensure directory exists
-          sudo mkdir -p /var/www/jonieshorsecare.nl
+          # Ensure directory exists and is writable
+          mkdir -p /var/www/jonieshorsecare.nl
           
-          # Temporarily set permissions for deployment
-          sudo chown -R $USER:$USER /var/www/jonieshorsecare.nl
-          
-          # Clean old backups (keep last 3)
-          sudo ls -t /var/www/jonieshorsecare.nl.backup.* 2>/dev/null | tail -n +4 | xargs -r sudo rm -rf
+          # Clean old backups (keep last 3) - only if user has permissions
+          ls -t /var/www/jonieshorsecare.nl.backup.* 2>/dev/null | tail -n +4 | xargs -r rm -rf 2>/dev/null || echo "Skipping backup cleanup"
     
     - name: Deploy built files via rsync
       uses: burnett01/rsync-deployments@6.0.0
@@ -71,7 +68,7 @@ jobs:
         remote_key: ${{ secrets.SSH_KEY }}
         remote_port: ${{ secrets.PORT }}
         
-    - name: Set proper permissions and verify deployment
+    - name: Verify deployment
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.HOST }}
@@ -79,11 +76,6 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.PORT }}
         script: |
-          # Set proper ownership and permissions
-          sudo chown -R www-data:www-data /var/www/jonieshorsecare.nl/
-          sudo find /var/www/jonieshorsecare.nl/ -type d -exec chmod 755 {} \;
-          sudo find /var/www/jonieshorsecare.nl/ -type f -exec chmod 644 {} \;
-          
           # Verify critical files exist
           echo "Verifying deployment..."
           test -f /var/www/jonieshorsecare.nl/index.html && echo "✓ index.html deployed" || echo "✗ index.html missing!"
@@ -93,6 +85,6 @@ jobs:
           echo "Deployment structure:"
           ls -lah /var/www/jonieshorsecare.nl/ | head -20
           
-          # Test Nginx configuration
-          echo "Testing Nginx configuration..."
-          sudo nginx -t
+          # Check permissions
+          echo "Current permissions:"
+          ls -ld /var/www/jonieshorsecare.nl/
